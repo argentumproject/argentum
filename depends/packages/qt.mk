@@ -32,16 +32,11 @@ $(package)_config_opts += -no-gif
 $(package)_config_opts += -no-freetype
 $(package)_config_opts += -no-nis
 $(package)_config_opts += -no-pch
-$(package)_config_opts += -no-feature-style-plastique
 $(package)_config_opts += -no-qml-debug
 $(package)_config_opts += -nomake examples
 $(package)_config_opts += -nomake tests
-$(package)_config_opts += -no-feature-style-cde
-$(package)_config_opts += -no-feature-style-s60
-$(package)_config_opts += -no-feature-style-motif
 $(package)_config_opts += -no-feature-style-windowsmobile
 $(package)_config_opts += -no-feature-style-windowsce
-$(package)_config_opts += -no-feature-style-cleanlooks
 $(package)_config_opts += -no-sql-db2
 $(package)_config_opts += -no-sql-ibase
 $(package)_config_opts += -no-sql-oci
@@ -51,26 +46,8 @@ $(package)_config_opts += -no-sql-odbc
 $(package)_config_opts += -no-sql-psql
 $(package)_config_opts += -no-sql-sqlite
 $(package)_config_opts += -no-sql-sqlite2
-$(package)_config_opts += -skip qtsvg
-$(package)_config_opts += -skip qtwebkit
-$(package)_config_opts += -skip qtwebkit-examples
-$(package)_config_opts += -skip qtserialport
-$(package)_config_opts += -skip qtdeclarative
-$(package)_config_opts += -skip qtmultimedia
-$(package)_config_opts += -skip qtimageformats
-$(package)_config_opts += -skip qtx11extras
-$(package)_config_opts += -skip qtlocation
-$(package)_config_opts += -skip qtsensors
-$(package)_config_opts += -skip qtquick1
-$(package)_config_opts += -skip qtquickcontrols
-$(package)_config_opts += -skip qtactiveqt
-$(package)_config_opts += -skip qtconnectivity
-$(package)_config_opts += -skip qtmacextras
-$(package)_config_opts += -skip qtwinextras
-$(package)_config_opts += -skip qtxmlpatterns
-$(package)_config_opts += -skip qtscript
-$(package)_config_opts += -skip qtdoc
 $(package)_config_opts += -prefix $(host_prefix)
+$(package)_config_opts += -hostprefix $(build_prefix)
 $(package)_config_opts += -bindir $(build_prefix)/bin
 $(package)_config_opts += -no-c++11
 $(package)_config_opts += -openssl-linked
@@ -86,6 +63,7 @@ $(package)_config_opts += -qt-pcre
 ifneq ($(build_os),darwin)
 $(package)_config_opts_darwin = -xplatform macx-clang-linux
 $(package)_config_opts_darwin += -device-option MAC_SDK_PATH=$(OSX_SDK)
+$(package)_config_opts_darwin += -device-option MAC_SDK_VERSION=$(OSX_SDK_VERSION)
 $(package)_config_opts_darwin += -device-option CROSS_COMPILE="$(host)-"
 $(package)_config_opts_darwin += -device-option MAC_MIN_VERSION=$(OSX_MIN_VERSION)
 $(package)_config_opts_darwin += -device-option MAC_TARGET=$(host)
@@ -132,6 +110,9 @@ endef
 define $(package)_preprocess_cmds
   sed -i.old "s|updateqm.commands = \$$$$\$$$$LRELEASE|updateqm.commands = $($(package)_extract_dir)/qttools/bin/lrelease|" qttranslations/translations/translations.pro && \
   sed -i.old "s/src_plugins.depends = src_sql src_xml src_network/src_plugins.depends = src_xml src_network/" qtbase/src/src.pro && \
+  sed -i.old "s/PIDLIST_ABSOLUTE/ITEMIDLIST */" qtbase/src/plugins/platforms/windows/qwindowscontext.h &&\
+  sed -i.old "s/PIDLIST_ABSOLUTE/ITEMIDLIST */" qtbase/src/plugins/platforms/windows/qwindowsdialoghelpers.cpp &&\
+  sed -i.old "s/PCIDLIST_ABSOLUTE/const ITEMIDLIST */" qtbase/src/plugins/platforms/windows/qwindowscontext.h &&\
   sed -i.old "s|X11/extensions/XIproto.h|X11/X.h|" qtbase/src/plugins/platforms/xcb/qxcbxsettings.cpp && \
   sed -i.old 's/if \[ "$$$$XPLATFORM_MAC" = "yes" \]; then xspecvals=$$$$(macSDKify/if \[ "$$$$BUILD_ON_MAC" = "yes" \]; then xspecvals=$$$$(macSDKify/' qtbase/configure && \
   mkdir -p qtbase/mkspecs/macx-clang-linux &&\
