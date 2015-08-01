@@ -112,12 +112,6 @@ AC_DEFUN([BITCOIN_QT_CONFIGURE],[
     if test x$bitcoin_cv_static_qt = xyes; then
       _BITCOIN_QT_FIND_STATIC_PLUGINS
       AC_DEFINE(QT_STATICPLUGIN, 1, [Define this symbol if qt plugins are static])
-      if test x$qt_plugin_path != x; then
-        QT_LIBS="$QT_LIBS -L$qt_plugin_path/platforms"
-      fi
-      if test x$use_pkgconfig = xyes; then
-        PKG_CHECK_MODULES([QTPLATFORM], [Qt5PlatformSupport], [QT_LIBS="$QTPLATFORM_LIBS $QT_LIBS"])
-      fi
       AC_CACHE_CHECK(for Qt < 5.4, bitcoin_cv_need_acc_widget,[AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
           [[#include <QtCore>]],[[
           #if QT_VERSION >= 0x050400
@@ -128,19 +122,12 @@ AC_DEFUN([BITCOIN_QT_CONFIGURE],[
         [bitcoin_cv_need_acc_widget=no])
       ])
       if test "x$bitcoin_cv_need_acc_widget" = "xyes"; then
-        if test x$qt_plugin_path != x; then
-          QT_LIBS="$QT_LIBS -L$qt_plugin_path/accessible"
-        fi
         _BITCOIN_QT_CHECK_STATIC_PLUGINS([Q_IMPORT_PLUGIN(AccessibleFactory)], [-lqtaccessiblewidgets])
       fi
       if test x$TARGET_OS = xwindows; then
         _BITCOIN_QT_CHECK_STATIC_PLUGINS([Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin)],[-lqwindows])
         AC_DEFINE(QT_QPA_PLATFORM_WINDOWS, 1, [Define this symbol if the qt platform is windows])
       elif test x$TARGET_OS = xlinux; then
-        PKG_CHECK_MODULES([X11XCB], [x11-xcb], [QT_LIBS="$X11XCB_LIBS $QT_LIBS"])
-        if ${PKG_CONFIG} --exists "Qt5Core >= 5.5" 2>/dev/null; then
-          PKG_CHECK_MODULES([QTXCBQPA], [Qt5XcbQpa], [QT_LIBS="$QTXCBQPA_LIBS $QT_LIBS"])
-        fi
         _BITCOIN_QT_CHECK_STATIC_PLUGINS([Q_IMPORT_PLUGIN(QXcbIntegrationPlugin)],[-lqxcb -lxcb-static])
         AC_DEFINE(QT_QPA_PLATFORM_XCB, 1, [Define this symbol if the qt platform is xcb])
       elif test x$TARGET_OS = xdarwin; then
@@ -342,9 +329,8 @@ AC_DEFUN([_BITCOIN_QT_FIND_STATIC_PLUGINS],[
           QT_LIBS="$QT_LIBS -L$qt_plugin_path/accessible"
         fi
       fi
-     if test x$use_pkgconfig = xyes; then
-     : dnl
      m4_ifdef([PKG_CHECK_MODULES],[
+     if test x$use_pkgconfig = xyes; then
        PKG_CHECK_MODULES([QTPLATFORM], [Qt5PlatformSupport], [QT_LIBS="$QTPLATFORM_LIBS $QT_LIBS"])
        if test x$TARGET_OS = xlinux; then
          PKG_CHECK_MODULES([X11XCB], [x11-xcb], [QT_LIBS="$X11XCB_LIBS $QT_LIBS"])
@@ -354,23 +340,8 @@ AC_DEFUN([_BITCOIN_QT_FIND_STATIC_PLUGINS],[
        elif test x$TARGET_OS = xdarwin; then
          PKG_CHECK_MODULES([QTPRINT], [Qt5PrintSupport], [QT_LIBS="$QTPRINT_LIBS $QT_LIBS"])
        fi
-     ])
-     else
-       if test x$TARGET_OS = xwindows; then
-         AC_CACHE_CHECK(for Qt >= 5.6, bitcoin_cv_need_platformsupport,[AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-             [[#include <QtCore>]],[[
-             #if QT_VERSION < 0x050600
-             choke;
-             #endif
-             ]])],
-           [bitcoin_cv_need_platformsupport=yes],
-           [bitcoin_cv_need_platformsupport=no])
-         ])
-         if test x$bitcoin_cv_need_platformsupport = xyes; then
-           BITCOIN_QT_CHECK(AC_CHECK_LIB([${QT_LIB_PREFIX}PlatformSupport],[main],,BITCOIN_QT_FAIL(lib$QT_LIB_PREFIXPlatformSupport not found)))
-         fi
-       fi
      fi
+     ])
   else
     if test x$qt_plugin_path != x; then
       QT_LIBS="$QT_LIBS -L$qt_plugin_path/accessible"
