@@ -106,7 +106,9 @@ AC_DEFUN([BITCOIN_QT_CONFIGURE],[
   dnl results to QT_LIBS.
   BITCOIN_QT_CHECK([
   TEMP_CPPFLAGS=$CPPFLAGS
+  TEMP_CXXFLAGS=$CXXFLAGS
   CPPFLAGS="$QT_INCLUDES $CPPFLAGS"
+  CXXFLAGS="$PIC_FLAGS $CXXFLAGS"
   if test x$bitcoin_qt_got_major_vers = x5; then
     _BITCOIN_QT_IS_STATIC
     if test x$bitcoin_cv_static_qt = xyes; then
