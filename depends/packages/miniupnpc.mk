@@ -6,7 +6,7 @@ $(package)_sha256_hash=e444ac3b587ce82709c4d0cfca1fe71f44f9fc433e9f946b12b9e1bfe
 
 define $(package)_set_vars
 $(package)_build_opts=CC="$($(package)_cc)"
-$(package)_build_opts_darwin=OS=Darwin
+$(package)_build_opts_darwin=OS=Darwin LIBTOOL="$($(package)_libtool)"
 $(package)_build_opts_mingw32=-f Makefile.mingw
 $(package)_build_env+=CFLAGS="$($(package)_cflags) $($(package)_cppflags)" AR="$($(package)_ar)"
 endef
