@@ -6,7 +6,6 @@ suites:
 architectures:
 - "amd64"
 packages:
-- "curl"
 - "g++"
 - "git-core"
 - "pkg-config"
@@ -21,7 +20,6 @@ packages:
 - "zip"
 - "ca-certificates"
 - "python"
-reference_datetime: "2016-01-01 00:00:00"
 remotes:
 - "url": "https://github.com/protonn/argentum.git"
   "dir": "argentum"
