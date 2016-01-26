@@ -69,7 +69,7 @@ if BUILD_BITCOIN_UTILS
   bin_PROGRAMS += argentum-cli argentum-tx
 endif
 
-.PHONY: FORCE check-symbols
+.PHONY: FORCE check-symbols check-security
 # bitcoin core #
 BITCOIN_CORE_H = \
   addrman.h \
@@ -441,8 +441,14 @@ clean-local:
 
 check-symbols: $(bin_PROGRAMS)
 if GLIBC_BACK_COMPAT
-  @echo "Checking glibc back compat of [$(bin_PROGRAMS)]..."
-  $(AM_V_at) READELF=$(READELF) CPPFILT=$(CPPFILT) $(top_srcdir)/contrib/devtools/symbol-check.py < $(bin_PROGRAMS)
+	@echo "Checking glibc back compat..."
+	$(AM_V_at) READELF=$(READELF) CPPFILT=$(CPPFILT) $(top_srcdir)/contrib/devtools/symbol-check.py < $(bin_PROGRAMS)
+endif
+
+check-security: $(bin_PROGRAMS)
+if HARDEN
+	@echo "Checking binary security..."
+	$(AM_V_at) READELF=$(READELF) OBJDUMP=$(OBJDUMP) $(top_srcdir)/contrib/devtools/security-check.py < $(bin_PROGRAMS)
 endif
 
 %.pb.cc %.pb.h: %.proto
