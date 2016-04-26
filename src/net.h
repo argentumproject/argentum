@@ -278,6 +278,7 @@ public:
     CSemaphoreGrant grantOutbound;
     CCriticalSection cs_filter;
     CBloomFilter* pfilter;
+    //std::unique_ptr<CBloomFilter> xthinFilter;
     int nRefCount;
     NodeId id;
 protected:
@@ -320,6 +321,9 @@ public:
     int64_t nPingUsecTime;
     // Whether a ping is requested.
     bool fPingQueued;
+
+    // adds connection to ipgroup (for prioritising connection slots)
+    std::unique_ptr<IPGroupSlot> ipgroupSlot;
 
     CNode(SOCKET hSocketIn, CAddress addrIn, std::string addrNameIn = "", bool fInboundIn=false);
     ~CNode();
