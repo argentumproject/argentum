@@ -1,4 +1,4 @@
-DIST_SUBDIRS = secp256k1 univalue
+DIST_SUBDIRS = secp256k1
 
 AM_LDFLAGS = $(PTHREAD_CFLAGS) $(LIBTOOL_LDFLAGS) $(HARDENED_LDFLAGS)
 AM_CXXFLAGS = $(HARDENED_CXXFLAGS)
@@ -254,7 +254,7 @@ univalue_libbitcoin_univalue_a_SOURCES = \
   univalue/univalue_escapes.h \
   univalue/univalue_read.cpp \
   univalue/univalue_write.cpp
-  
+
 # common: shared between bitcoind, and bitcoin-qt and non-server tools
 libbitcoin_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 libbitcoin_common_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
