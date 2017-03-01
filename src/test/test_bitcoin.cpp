@@ -9,6 +9,7 @@
 #include "chainparams.h"
 #include "consensus/consensus.h"
 #include "consensus/validation.h"
+#include "fs.h"
 #include "key.h"
 #include "validation.h"
 #include "miner.h"
@@ -26,8 +27,6 @@
 
 #include <memory>
 
-#include <boost/filesystem.hpp>
-#include <boost/test/unit_test.hpp>
 #include <boost/thread.hpp>
 
 std::unique_ptr<CConnman> g_connman;
