@@ -61,7 +61,7 @@ A common question is how to build from Ubuntu, instructions follow:
 12. git clone git://github.com/argentumproject/argentum.git
 13. cd argentum
 14. ./autogen.sh
-15. ./configure
+15. ./configure --enable-hardening --disable-tests --disable-upnp-default
 16. make
 
 Other Build Notes:

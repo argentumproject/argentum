@@ -47,7 +47,7 @@ NOTE: Building with Qt4 is still supported, however, could result in a broken UI
 2.  Build argentumd:
 
         ./autogen.sh
-        ./configure --with-gui=qt5
+        ./configure --with-gui=qt5 --enable-hardening --disable-tests --disable-upnp-default
         make
 
 3.  It is also a good idea to build and run the unit tests:
