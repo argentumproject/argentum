@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 # Copyright (c) 2014 Wladimir J. van der Laan
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -6,15 +6,14 @@
 A script to check that the (Linux) executables produced by gitian only contain
 allowed gcc, glibc and libstdc++ version symbols.  This makes sure they are
 still compatible with the minimum supported Linux distribution versions.
-
 Example usage:
-
     find ../gitian-builder/build -type f -executable | xargs python contrib/devtools/symbol-check.py
 '''
 from __future__ import division, print_function
 import subprocess
 import re
 import sys
+import os
 
 # Debian 6.0.9 (Squeeze) has:
 #
@@ -45,13 +44,31 @@ MAX_VERSIONS = {
 IGNORE_EXPORTS = {
 '_edata', '_end', '_init', '__bss_start', '_fini'
 }
-READELF_CMD = '/usr/bin/readelf'
-CPPFILT_CMD = '/usr/bin/c++filt'
+READELF_CMD = os.getenv('READELF', '/usr/bin/readelf')
+CPPFILT_CMD = os.getenv('CPPFILT', '/usr/bin/c++filt')
+# Allowed NEEDED libraries
+ALLOWED_LIBRARIES = {
+# bitcoind and bitcoin-qt
+'libgcc_s.so.1', # GCC base support
+'libc.so.6', # C library
+'libpthread.so.0', # threading
+'libanl.so.1', # DNS resolve
+'libm.so.6', # math library
+'librt.so.1', # real-time (clock)
+'ld-linux-x86-64.so.2', # 64-bit dynamic linker
+'ld-linux.so.2', # 32-bit dynamic linker
+# bitcoin-qt only
+'libX11-xcb.so.1', # part of X11
+'libX11.so.6', # part of X11
+'libxcb.so.1', # part of X11
+'libfontconfig.so.1', # font support
+'libfreetype.so.6', # font parsing
+'libdl.so.2' # programming interface to dynamic linker
+}
 
 class CPPFilt(object):
     '''
     Demangle C++ symbol names.
-
     Use a pipe to the 'c++filt' command.
     '''
     def __init__(self):
@@ -98,6 +115,22 @@ def check_version(max_versions, version):
         return False
     return ver <= max_versions[lib]
 
+def read_libraries(filename):
+    p = subprocess.Popen([READELF_CMD, '-d', '-W', filename], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+    (stdout, stderr) = p.communicate()
+    if p.returncode:
+        raise IOError('Error opening file')
+    libraries = []
+    for line in stdout.split('\n'):
+        tokens = line.split()
+        if len(tokens)>2 and tokens[1] == '(NEEDED)':
+            match = re.match('^Shared library: \[(.*)\]$', ' '.join(tokens[2:]))
+            if match:
+                libraries.append(match.group(1))
+            else:
+                raise ValueError('Unparseable (NEEDED) specification')
+    return libraries
+
 if __name__ == '__main__':
     cppfilt = CPPFilt()
     retval = 0
@@ -113,7 +146,10 @@ if __name__ == '__main__':
                 continue
             print('%s: export of symbol %s not allowed' % (filename, cppfilt(sym)))
             retval = 1
+        # Check dependency libraries
+        for library_name in read_libraries(filename):
+            if library_name not in ALLOWED_LIBRARIES:
+                print('%s: NEEDED library %s is not allowed' % (filename, library_name))
+                retval = 1
 
-    exit(retval)
-
-
+exit(retval)
