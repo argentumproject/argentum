@@ -91,6 +91,11 @@ AC_ARG_ENABLE(tests,
     [use_tests=$enableval],
     [use_tests=yes])
 
+AC_ARG_ENABLE(gui-tests,
+    AS_HELP_STRING([--disable-gui-tests],[do not compile GUI tests (default is to compile if GUI and tests enabled)]),
+    [use_gui_tests=$enableval],
+    [use_gui_tests=$use_tests])
+
 AC_ARG_WITH([comparison-tool],
     AS_HELP_STRING([--with-comparison-tool],[path to java comparison tool (requires --enable-tests)]),
     [use_comparison_tool=$withval],
@@ -384,6 +389,10 @@ AX_GCC_FUNC_ATTRIBUTE([dllimport])
 
 if test x$use_glibc_compat != xno; then
 
+  #glibc absorbed clock_gettime in 2.17. librt (its previous location) is safe to link
+  #in anyway for back-compat.
+  AC_CHECK_LIB([rt],[clock_gettime],, AC_MSG_ERROR(lib missing))
+
   #__fdelt_chk's params and return type have changed from long unsigned int to long int.
   # See which one is present here.
   AC_MSG_CHECKING(__fdelt_chk type)
@@ -397,6 +406,8 @@ if test x$use_glibc_compat != xno; then
     [ fdelt_type="long int"])
   AC_MSG_RESULT($fdelt_type)
   AC_DEFINE_UNQUOTED(FDELT_TYPE, $fdelt_type,[parameter and return value type for __fdelt_chk])
+else
+  AC_SEARCH_LIBS([clock_gettime],[rt])
 
 fi
 
@@ -773,6 +784,7 @@ else
 fi
 
 dnl these are only used when qt is enabled
+BUILD_TEST_QT=""
 if test x$bitcoin_enable_qt != xno; then
   BUILD_QT=qt
   dnl enable dbus support
@@ -804,9 +816,9 @@ if test x$bitcoin_enable_qt != xno; then
   fi
 
   AC_MSG_CHECKING([whether to build test_bitcoin-qt])
-  if test x$use_tests$bitcoin_enable_qt_test = xyesyes; then
+  if test x$use_gui_tests$bitcoin_enable_qt_test = xyesyes; then
     AC_MSG_RESULT([yes])
-    BUILD_TEST_QT="test"
+    BUILD_TEST_QT="yes"
   else
     AC_MSG_RESULT([no])
   fi
@@ -815,9 +827,10 @@ fi
 AC_MSG_CHECKING([whether to build test_bitcoin])
 if test x$use_tests = xyes; then
   AC_MSG_RESULT([yes])
-  BUILD_TEST="test"
+  BUILD_TEST="yes"
 else
   AC_MSG_RESULT([no])
+  BUILD_TEST=""
 fi
 
 AC_MSG_CHECKING([whether to reduce exports])
@@ -835,9 +848,9 @@ AM_CONDITIONAL([TARGET_DARWIN], [test x$TARGET_OS = xdarwin])
 AM_CONDITIONAL([BUILD_DARWIN], [test x$BUILD_OS = xdarwin])
 AM_CONDITIONAL([TARGET_WINDOWS], [test x$TARGET_OS = xwindows])
 AM_CONDITIONAL([ENABLE_WALLET],[test x$enable_wallet = xyes])
-AM_CONDITIONAL([ENABLE_TESTS],[test x$use_tests = xyes])
+AM_CONDITIONAL([ENABLE_TESTS],[test x$BUILD_TEST = xyes])
 AM_CONDITIONAL([ENABLE_QT],[test x$bitcoin_enable_qt = xyes])
-AM_CONDITIONAL([ENABLE_QT_TESTS],[test x$use_tests$bitcoin_enable_qt_test = xyesyes])
+AM_CONDITIONAL([ENABLE_QT_TESTS],[test x$BUILD_TEST_QT = xyes])
 AM_CONDITIONAL([USE_QRCODE], [test x$use_qr = xyes])
 AM_CONDITIONAL([USE_LCOV],[test x$use_lcov = xyes])
 AM_CONDITIONAL([USE_COMPARISON_TOOL],[test x$use_comparison_tool != xno])
