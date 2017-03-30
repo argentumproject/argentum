@@ -1,7 +1,7 @@
 ---
 name: "argentum-win-signer"
 suites:
-- "precise"
+- "trusty"
 architectures:
 - "amd64"
 packages:

@@ -2,7 +2,7 @@
 name: "argentum-osx-0.11"
 enable_cache: true
 suites:
-- "precise"
+- "trusty"
 architectures:
 - "amd64"
 packages: 
@@ -18,6 +18,8 @@ packages:
 - "libcap-dev"
 - "libz-dev"
 - "libbz2-dev"
+- "ca-certificates"
+- "python"
 reference_datetime: "2015-06-01 00:00:00"
 remotes:
 - "url": "https://github.com/protonn/argentum.git"

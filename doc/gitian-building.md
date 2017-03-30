@@ -11,7 +11,7 @@ the same, tested dependencies are used and statically built into the executable.
 Multiple developers build the source code by following a specific descriptor
 ("recipe"), cryptographically sign the result, and upload the resulting signature.
 These results are compared and only if they match, the build is accepted and uploaded
-to bitcoin.org.
+to https://github.com/argentumproject/argentum/releases.
 
 More independent Gitian builders are needed, which is why I wrote this
 guide. It is preferred to follow these steps yourself instead of using someone else's
@@ -26,7 +26,7 @@ Table of Contents
 - [Installing Gitian](#installing-gitian)
 - [Setting up the Gitian image](#setting-up-the-gitian-image)
 - [Getting and building the inputs](#getting-and-building-the-inputs)
-- [Building Bitcoin](#building-bitcoin)
+- [Building Bitcoin](#building-argentum)
 - [Building an alternative repository](#building-an-alternative-repository)
 - [Signing externally](#signing-externally)
 - [Uploading signatures](#uploading-signatures)
@@ -41,7 +41,6 @@ Debian Linux was chosen as the host distribution because it has a lightweight in
 Any kind of virtualization can be used, for example:
 - [VirtualBox](https://www.virtualbox.org/), covered by this guide
 - [KVM](http://www.linux-kvm.org/page/Main_Page)
-- [LXC](https://linuxcontainers.org/), see also [Gitian host docker container](https://github.com/gdm85/tenku/tree/master/docker/gitian-bitcoin-host/README.md).
 
 You can also install on actual hardware instead of using virtualization.
 
@@ -236,15 +235,15 @@ go with the default (`/var/lib/lxc`).
 Then set up LXC and the rest with the following, which is a complex jumble of settings and workarounds:
 
 ```bash
-# the version of lxc-start in Debian 7.4 needs to run as root, so make sure
+# the version of lxc-start in Debian needs to run as root, so make sure
 # that the build script can execute it without providing a password
 echo "%sudo ALL=NOPASSWD: /usr/bin/lxc-start" > /etc/sudoers.d/gitian-lxc
-# add cgroup for LXC
-echo "cgroup  /sys/fs/cgroup  cgroup  defaults  0   0" >> /etc/fstab
 # make /etc/rc.local script that sets up bridge between guest and host
 echo '#!/bin/sh -e' > /etc/rc.local
 echo 'brctl addbr br0' >> /etc/rc.local
 echo 'ifconfig br0 10.0.3.2/24 up' >> /etc/rc.local
+echo 'iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE' >> /etc/rc.local
+echo 'echo 1 > /proc/sys/net/ipv4/ip_forward' >> /etc/rc.local
 echo 'exit 0' >> /etc/rc.local
 # make sure that USE_LXC is always set when logging in as debian,
 # and configure LXC IP addresses
@@ -277,11 +276,11 @@ cd ..
 
 **Note**: When sudo asks for a password, enter the password for the user *debian* not for *root*.
 
-Clone the git repositories for bitcoin and Gitian.
+Clone the git repositories for argentum and Gitian.
 
 ```bash
 git clone https://github.com/devrandom/gitian-builder.git
-git clone https://github.com/bitcoin/bitcoin
+git clone https://github.com/argentum/argentum
 ```
 
 Setting up the Gitian image
@@ -307,7 +306,7 @@ There will be a lot of warnings printed during build of the image. These can be 
 Getting and building the inputs
 --------------------------------
 
-Follow the instructions in [doc/release-process.md](release-process.md) in the bitcoin repository
+Follow the instructions in [doc/release-process.md](release-process.md) in the argentum repository
 under 'Fetch and build inputs' to install sources which require manual intervention. Also follow
 the next step: 'Seed the Gitian sources cache', which will fetch all necessary source files allowing
 for Gitian to work offline.
@@ -316,7 +315,7 @@ Building Bitcoin
 ----------------
 
 To build Bitcoin (for Linux, OS X and Windows) just follow the steps under 'perform
-Gitian builds' in [doc/release-process.md](release-process.md) in the bitcoin repository.
+Gitian builds' in [doc/release-process.md](release-process.md) in the argentum repository.
 
 This may take a long time as it also builds the dependencies needed for each descriptor.
 These dependencies will be cached after a successful build to avoid rebuilding them where possible.
@@ -330,12 +329,12 @@ tail -f var/build.log
 
 Output from `gbuild` will look something like
 
-    Initialized empty Git repository in /home/debian/gitian-builder/inputs/bitcoin/.git/
+    Initialized empty Git repository in /home/debian/gitian-builder/inputs/argentum/.git/
     remote: Reusing existing pack: 35606, done.
     remote: Total 35606 (delta 0), reused 0 (delta 0)
     Receiving objects: 100% (35606/35606), 26.52 MiB | 4.28 MiB/s, done.
     Resolving deltas: 100% (25724/25724), done.
-    From https://github.com/bitcoin/bitcoin
+    From https://github.com/argentum/argentum
     ... (new tags, new branch etc)
     --- Building for precise x86_64 ---
     Stopping target if it is up
@@ -361,11 +360,11 @@ and inputs.
 
 For example:
 ```bash
-URL=https://github.com/laanwj/bitcoin.git
-COMMIT=2014_03_windows_unicode_path
-./bin/gbuild --commit bitcoin=${COMMIT} --url bitcoin=${URL} ../bitcoin/contrib/gitian-descriptors/gitian-linux.yml
-./bin/gbuild --commit bitcoin=${COMMIT} --url bitcoin=${URL} ../bitcoin/contrib/gitian-descriptors/gitian-win.yml
-./bin/gbuild --commit bitcoin=${COMMIT} --url bitcoin=${URL} ../bitcoin/contrib/gitian-descriptors/gitian-osx.yml
+URL=https://github.com/protonn/argentum.git
+COMMIT=0d1c4b6b5a233e34b8dd160b7c20ceb7c01665eb
+./bin/gbuild --commit argentum=${COMMIT} --url argentum=${URL} ../argentum/contrib/gitian-descriptors/gitian-linux.yml
+./bin/gbuild --commit argentum=${COMMIT} --url argentum=${URL} ../argentum/contrib/gitian-descriptors/gitian-win.yml
+./bin/gbuild --commit argentum=${COMMIT} --url argentum=${URL} ../argentum/contrib/gitian-descriptors/gitian-osx.yml
 ```
 
 Signing externally
@@ -380,9 +379,9 @@ When you execute `gsign` you will get an error from GPG, which can be ignored. C
 in `gitian.sigs` to your signing machine and do
 
 ```bash
-    gpg --detach-sign ${VERSION}-linux/${SIGNER}/bitcoin-linux-build.assert
-    gpg --detach-sign ${VERSION}-win/${SIGNER}/bitcoin-win-build.assert
-    gpg --detach-sign ${VERSION}-osx-unsigned/${SIGNER}/bitcoin-osx-build.assert
+    gpg --detach-sign ${VERSION}-linux/${SIGNER}/argentum-linux-build.assert
+    gpg --detach-sign ${VERSION}-win/${SIGNER}/argentum-win-build.assert
+    gpg --detach-sign ${VERSION}-osx-unsigned/${SIGNER}/argentum-osx-build.assert
 ```
 
 This will create the `.sig` files that can be committed together with the `.assert` files to assert your
@@ -392,5 +391,5 @@ Uploading signatures
 ---------------------
 
 After building and signing you can push your signatures (both the `.assert` and `.assert.sig` files) to the
-[bitcoin/gitian.sigs](https://github.com/bitcoin/gitian.sigs/) repository, or if that's not possible create a pull
+[argentum/gitian.sigs](https://github.com/argentum/gitian.sigs/) repository, or if that's not possible create a pull
 request. You can also mail the files to Wladimir (laanwj@gmail.com) and he will commit them.
