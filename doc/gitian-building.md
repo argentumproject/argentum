@@ -238,6 +238,7 @@ Then set up LXC and the rest with the following, which is a complex jumble of se
 # the version of lxc-start in Debian needs to run as root, so make sure
 # that the build script can execute it without providing a password
 echo "%sudo ALL=NOPASSWD: /usr/bin/lxc-start" > /etc/sudoers.d/gitian-lxc
+echo "%sudo ALL=NOPASSWD: /usr/bin/lxc-execute" >> /etc/sudoers.d/gitian-lxc
 # make /etc/rc.local script that sets up bridge between guest and host
 echo '#!/bin/sh -e' > /etc/rc.local
 echo 'brctl addbr br0' >> /etc/rc.local
@@ -367,6 +368,57 @@ COMMIT=0d1c4b6b5a233e34b8dd160b7c20ceb7c01665eb
 ./bin/gbuild --commit argentum=${COMMIT} --url argentum=${URL} ../argentum/contrib/gitian-descriptors/gitian-osx.yml
 ```
 
+Building fully offline
+-----------------------
+
+For building fully offline including attaching signatures to unsigned builds, the detached-sigs repository
+and the bitcoin git repository with the desired tag must both be available locally, and then gbuild must be
+told where to find them. It also requires an apt-cacher-ng which is fully-populated but set to offline mode, or
+manually disabling gitian-builder's use of apt-get to update the VM build environment.
+
+To configure apt-cacher-ng as an offline cacher, you will need to first populate its cache with the relevant
+files. You must additionally patch target-bin/bootstrap-fixup to set its apt sources to something other than
+plain archive.ubuntu.com: us.archive.ubuntu.com works.
+
+So, if you use LXC:
+
+```bash
+export PATH="$PATH":/path/to/gitian-builder/libexec
+export USE_LXC=1
+cd /path/to/gitian-builder
+./libexec/make-clean-vm --suite trusty --arch amd64
+
+LXC_ARCH=amd64 LXC_SUITE=trusty on-target -u root apt-get update
+LXC_ARCH=amd64 LXC_SUITE=trusty on-target -u root \
+  -e DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
+  $( sed -ne '/^packages:/,/[^-] .*/ {/^- .*/{s/"//g;s/- //;p}}' ../argentum/contrib/gitian-descriptors/*|sort|uniq )
+LXC_ARCH=amd64 LXC_SUITE=trusty on-target -u root apt-get -q -y purge grub
+LXC_ARCH=amd64 LXC_SUITE=trusty on-target -u root -e DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade
+```
+
+And then set offline mode for apt-cacher-ng:
+
+```
+/etc/apt-cacher-ng/acng.conf
+[...]
+Offlinemode: 1
+[...]
+
+service apt-cacher-ng restart
+```
+
+Then when building, override the remote URLs that gbuild would otherwise pull from the Gitian descriptors::
+```bash
+
+cd /some/root/path/
+git clone https://github.com/bitcoin-core/bitcoin-detached-sigs.git
+
+BTCPATH=/some/root/path/argentum
+SIGPATH=/some/root/path/argentum-detached-sigs
+
+./bin/gbuild --url argentum=${BTCPATH},signature=${SIGPATH} ../argentum/contrib/gitian-descriptors/gitian-win-signer.yml
+```
+
 Signing externally
 -------------------
 
@@ -391,5 +443,5 @@ Uploading signatures
 ---------------------
 
 After building and signing you can push your signatures (both the `.assert` and `.assert.sig` files) to the
-[argentum/gitian.sigs](https://github.com/argentum/gitian.sigs/) repository, or if that's not possible create a pull
+[argentum/gitian.sigs](https://github.com/argentumproject/gitian.sigs/) repository, or if that's not possible create a pull
 request. You can also mail the files to Wladimir (laanwj@gmail.com) and he will commit them.
