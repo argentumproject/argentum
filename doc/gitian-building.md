@@ -266,11 +266,11 @@ The rest of the steps in this guide will be performed as that user.
 There is no `python-vm-builder` package in Debian, so we need to install it from source ourselves,
 
 ```bash
-wget http://archive.ubuntu.com/ubuntu/pool/universe/v/vm-builder/vm-builder_0.12.4+bzr489.orig.tar.gz
-echo "ec12e0070a007989561bfee5862c89a32c301992dd2771c4d5078ef1b3014f03  vm-builder_0.12.4+bzr489.orig.tar.gz" | sha256sum -c
+wget http://archive.ubuntu.com/ubuntu/pool/universe/v/vm-builder/vm-builder_0.12.4+bzr494.orig.tar.gz
+echo "76cbf8c52c391160b2641e7120dbade5afded713afaa6032f733a261f13e6a8e  vm-builder_0.12.4+bzr494.orig.tar.gz" | sha256sum -c
 # (verification -- must return OK)
-tar -zxvf vm-builder_0.12.4+bzr489.orig.tar.gz
-cd vm-builder-0.12.4+bzr489
+tar -zxvf vm-builder_0.12.4+bzr494.orig.tar.gz
+cd vm-builder-0.12.4+bzr494
 sudo python setup.py install
 cd ..
 ```
@@ -297,7 +297,7 @@ Execute the following as user `debian`:
 
 ```bash
 cd gitian-builder
-bin/make-base-vm --lxc --arch amd64 --suite precise
+bin/make-base-vm --lxc --arch amd64 --suite trusty
 ```
 
 There will be a lot of warnings printed during build of the image. These can be ignored.
@@ -337,7 +337,7 @@ Output from `gbuild` will look something like
     Resolving deltas: 100% (25724/25724), done.
     From https://github.com/argentum/argentum
     ... (new tags, new branch etc)
-    --- Building for precise x86_64 ---
+    --- Building for trusty x86_64 ---
     Stopping target if it is up
     Making a new image copy
     stdin: is not a tty
@@ -362,7 +362,7 @@ and inputs.
 For example:
 ```bash
 URL=https://github.com/protonn/argentum.git
-COMMIT=0d1c4b6b5a233e34b8dd160b7c20ceb7c01665eb
+COMMIT=master
 ./bin/gbuild --commit argentum=${COMMIT} --url argentum=${URL} ../argentum/contrib/gitian-descriptors/gitian-linux.yml
 ./bin/gbuild --commit argentum=${COMMIT} --url argentum=${URL} ../argentum/contrib/gitian-descriptors/gitian-win.yml
 ./bin/gbuild --commit argentum=${COMMIT} --url argentum=${URL} ../argentum/contrib/gitian-descriptors/gitian-osx.yml
