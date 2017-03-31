@@ -323,7 +323,7 @@ public:
     bool fPingQueued;
 
     // adds connection to ipgroup (for prioritising connection slots)
-    std::unique_ptr<IPGroupSlot> ipgroupSlot;
+    //std::unique_ptr<IPGroupSlot> ipgroupSlot;
 
     CNode(SOCKET hSocketIn, CAddress addrIn, std::string addrNameIn = "", bool fInboundIn=false);
     ~CNode();
