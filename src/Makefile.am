@@ -326,7 +326,7 @@ nodist_libbitcoin_util_a_SOURCES = $(srcdir)/obj/build.h
 #
 
 # argentumd binary #
-argentumd_SOURCES = argentumd.cpp
+argentumd_SOURCES = bitcoind.cpp
 argentumd_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 argentumd_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 argentumd_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
