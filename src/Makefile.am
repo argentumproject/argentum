@@ -331,7 +331,7 @@ argentumd_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 argentumd_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if TARGET_WINDOWS
-argentumd_SOURCES += argentumd-res.rc
+argentumd_SOURCES += bitcoind-res.rc
 endif
 
 argentumd_LDADD = \
