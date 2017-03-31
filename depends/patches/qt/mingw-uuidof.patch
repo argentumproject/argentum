@@ -40,5 +40,5 @@
 -#endif // !Q_OS_WINCE
 +#endif // !defined(Q_OS_WINCE) && (!defined(USE___UUIDOF) || (defined(USE___UUIDOF) && USE___UUIDOF == 1))
      return result;
-}
+ }
  

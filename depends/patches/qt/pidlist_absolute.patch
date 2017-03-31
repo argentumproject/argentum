@@ -34,4 +34,4 @@ diff -dur old/qtbase/src/plugins/platforms/windows/qwindowsdialoghelpers.cpp new
 +#endif
          HRESULT hr = QWindowsContext::shell32dll.sHGetKnownFolderIDList(uuid, 0, 0, &idList);
          if (FAILED(hr)) {
-             qErrnoWarning("%s: SHGetKnownFolderIDList(%s)) failed", __FUNCTION__, qPrintable(url.toString()));    
+             qErrnoWarning("%s: SHGetKnownFolderIDList(%s)) failed", __FUNCTION__, qPrintable(url.toString()));
