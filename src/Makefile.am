@@ -346,7 +346,7 @@ argentumd_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUP
 argentum_cli_SOURCES = bitcoin-cli.cpp
 argentum_cli_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(EVENT_CFLAGS)
 argentum_cli_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-argentumn_cli_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+argentum_cli_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if TARGET_WINDOWS
 argentum_cli_SOURCES += bitcoin-cli-res.rc
