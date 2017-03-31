@@ -245,8 +245,17 @@ crypto_libbitcoin_crypto_a_SOURCES = \
   crypto/sha512.cpp \
   crypto/sha512.h
 
+# univalue JSON library
+univalue_libbitcoin_univalue_a_CPPFLAGS = $(AM_CPPFLAGS)
+univalue_libbitcoin_univalue_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+univalue_libbitcoin_univalue_a_SOURCES = \
+  univalue/univalue.cpp \
+  univalue/univalue.h \
+  univalue/univalue_escapes.h \
+  univalue/univalue_read.cpp \
+  univalue/univalue_write.cpp
+  
 # common: shared between bitcoind, and bitcoin-qt and non-server tools
->>>>>>> 17c4d9d16... build: Split hardening/fPIE options out
 libbitcoin_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 libbitcoin_common_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_common_a_SOURCES = \
