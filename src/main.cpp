@@ -202,6 +202,63 @@ namespace {
     set<int> setDirtyFileInfo;
 } // anon namespace
 
+/*
+// Bloom filter to limit respend relays to one
+static const unsigned int MAX_DOUBLESPEND_BLOOM = 100000;
+static CBloomFilter doubleSpendFilter;
+void InitRespendFilter() {
+    seed_insecure_rand();
+    doubleSpendFilter = CBloomFilter(MAX_DOUBLESPEND_BLOOM, 0.01, insecure_rand(), BLOOM_UPDATE_NONE);
+}
+
+bool UsingThinBlocks() {
+    if (Opt().IsStealthMode())
+        return false;
+    return GetBoolArg("-use-thin-blocks", true);
+}
+
+/// Don't request blocks from nodes hat don't support thin blocks.
+bool AvoidFullBlocks() {
+    return GetArg("-use-thin-blocks", 1) == 2
+        || GetArg("-use-thin-blocks" ,1) == 3;
+}
+
+// Makes only outbound connection to xthin-supporting nodes.
+// Implicitly enables "avoid full blocks".
+bool XThinBlocksOnly() {
+    return GetArg("-use-thin-blocks", 1) == 3;
+}
+
+
+int ThinBlocksMaxParallel() {
+    return GetArg("-thin-blocks-max-parallel", 3);
+}
+
+class OnBlockFinished : public ThinBlockFinishedCallb {
+    public:
+        OnBlockFinished();
+        OnBlockFinished(const std::string& strCommand);
+
+        virtual void operator()(const CBlock& block, const std::vector<NodeId>& ids);
+
+    private:
+
+        const std::string strCommand;
+
+        bool hasWhitelistedNode(const std::vector<NodeId>& ids) const;
+        CNode* pickBlockSource(const std::vector<NodeId>& ids);
+        void updateRecentTxs(const CBlock& block, const std::vector<NodeId>& ids);
+        void rejectAndPunish(const CValidationState& state, const uint256& hash,
+                const std::vector<NodeId>& ids);
+};
+
+struct InFlightEraserImpl : public InFlightEraser {
+    virtual void operator()(NodeId, const uint256& block);
+};
+ThinBlockManager thinblockmg(
+        std::unique_ptr<ThinBlockFinishedCallb>(new OnBlockFinished()),
+        std::unique_ptr<InFlightEraser>(new InFlightEraserImpl()));*/
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // Registration of network node signals.
@@ -4330,6 +4387,31 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             pfrom->fDisconnect = true;
             return true;
         }
+
+        /*
+        {
+            LOCK(cs_main);
+            NodeStatePtr ns(pfrom->id);
+
+            if (UsingThinBlocks() && pfrom->SupportsXThinBlocks())
+                ns->thinblock.reset(new XThinWorker(
+                    thinblockmg, pfrom->id,
+                    std::unique_ptr<TxHashProvider>(new MempoolHashProvider)));
+
+            else if (UsingThinBlocks() && pfrom->SupportsBloomThinBlocks())
+                ns->thinblock.reset(new BloomThinWorker(thinblockmg, pfrom->id));*/
+            //else { /* keep DummyThinWorker */ //}
+
+          /*  bool hasRequiredThinSupport = XThinBlocksOnly()
+                ? pfrom->SupportsXThinBlocks()
+                : pfrom->SupportsBloomThinBlocks() || pfrom->SupportsXThinBlocks();
+            // Disconnect outbound connections that don't support thin blocks.
+            if (UsingThinBlocks() && !pfrom->fInbound && !hasRequiredThinSupport) {
+                LogPrintf("'%s' - peer=%d does not support thin blocks, disconnecting\n", pfrom->cleanSubVer, pfrom->id);
+                pfrom->fDisconnect = true;
+                return true;
+            }
+        }*/
 
         pfrom->addrLocal = addrMe;
         if (pfrom->fInbound && addrMe.IsRoutable())

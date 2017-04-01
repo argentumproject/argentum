@@ -40,9 +40,12 @@ MAX_VERSIONS = {
 'GLIBCXX': (3,4,13),
 'GLIBC':   (2,11)
 }
+# See here for a description of _IO_stdin_used:
+# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=634261#109
+
 # Ignore symbols that are exported as part of every executable
 IGNORE_EXPORTS = {
-'_edata', '_end', '_init', '__bss_start', '_fini'
+'_edata', '_end', '_init', '__bss_start', '_fini', '_IO_stdin_used'
 }
 READELF_CMD = os.getenv('READELF', '/usr/bin/readelf')
 CPPFILT_CMD = os.getenv('CPPFILT', '/usr/bin/c++filt')
@@ -58,12 +61,12 @@ ALLOWED_LIBRARIES = {
 'ld-linux-x86-64.so.2', # 64-bit dynamic linker
 'ld-linux.so.2', # 32-bit dynamic linker
 # bitcoin-qt only
-'libX11-xcb.so.1', # part of X11
-'libX11.so.6', # part of X11
-'libxcb.so.1', # part of X11
-'libfontconfig.so.1', # font support
-'libfreetype.so.6', # font parsing
-'libdl.so.2' # programming interface to dynamic linker
+b'libX11-xcb.so.1', # part of X11
+b'libX11.so.6', # part of X11
+b'libxcb.so.1', # part of X11
+b'libfontconfig.so.1', # font support
+b'libfreetype.so.6', # font parsing
+b'libdl.so.2' # programming interface to dynamic linker
 }
 
 class CPPFilt(object):
