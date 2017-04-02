@@ -1,11 +1,11 @@
 Gitian building
 ================
 
-*Setup instructions for a Gitian build of Bitcoin using a Debian VM or physical system.*
+*Setup instructions for a Gitian build of Argentum Core using a Debian VM or physical system.*
 
 Gitian is the deterministic build process that is used to build the Bitcoin
 Core executables. It provides a way to be reasonably sure that the
-executables are really built from source on GitHub. It also makes sure that
+executables are really built from the source on GitHub. It also makes sure that
 the same, tested dependencies are used and statically built into the executable.
 
 Multiple developers build the source code by following a specific descriptor
@@ -13,8 +13,8 @@ Multiple developers build the source code by following a specific descriptor
 These results are compared and only if they match, the build is accepted and uploaded
 to https://github.com/argentumproject/argentum/releases.
 
-More independent Gitian builders are needed, which is why I wrote this
-guide. It is preferred to follow these steps yourself instead of using someone else's
+More independent Gitian builders are needed, which is why this guide exists.
+It is preferred you follow these steps yourself instead of using someone else's
 VM image to avoid 'contaminating' the build.
 
 Table of Contents
@@ -26,7 +26,7 @@ Table of Contents
 - [Installing Gitian](#installing-gitian)
 - [Setting up the Gitian image](#setting-up-the-gitian-image)
 - [Getting and building the inputs](#getting-and-building-the-inputs)
-- [Building Bitcoin](#building-argentum)
+- [Building Argentum Core](#building-bitcoin-core)
 - [Building an alternative repository](#building-an-alternative-repository)
 - [Signing externally](#signing-externally)
 - [Uploading signatures](#uploading-signatures)
@@ -39,46 +39,40 @@ This guide explains how to set up the environment, and how to start the builds.
 
 Debian Linux was chosen as the host distribution because it has a lightweight install (in contrast to Ubuntu) and is readily available.
 Any kind of virtualization can be used, for example:
-- [VirtualBox](https://www.virtualbox.org/), covered by this guide
+- [VirtualBox](https://www.virtualbox.org/) (covered by this guide)
 - [KVM](http://www.linux-kvm.org/page/Main_Page)
+- [LXC](https://linuxcontainers.org/), see also [Gitian host docker container](https://github.com/gdm85/tenku/tree/master/docker/gitian-bitcoin-host/README.md).
 
-You can also install on actual hardware instead of using virtualization.
+You can also install Gitian on actual hardware instead of using virtualization.
 
 Create a new VirtualBox VM
 ---------------------------
-In the VirtualBox GUI click "Create" and choose the following parameters in the wizard:
+In the VirtualBox GUI click "New" and choose the following parameters in the wizard:
 
-![](gitian-building/create_vm_page1.png)
+![](gitian-building/create_new_vm.png)
 
-- Type: Linux, Debian (64 bit)
+- Type: Linux, Debian (64-bit)
 
 ![](gitian-building/create_vm_memsize.png)
 
-- Memory Size: at least 1024MB, anything lower will really slow the build down
+- Memory Size: at least 3000MB, anything less and the build might not complete.
 
-![](gitian-building/create_vm_hard_drive.png)
+![](gitian-building/create_vm_hard_disk.png)
 
-- Hard Drive: Create a virtual hard drive now
+- Hard Disk: Create a virtual hard disk now
 
-![](gitian-building/create_vm_hard_drive_file_type.png)
+![](gitian-building/create_vm_hard_disk_file_type.png)
 
-- Hard Drive file type: Use the default, VDI (VirtualBox Disk Image)
+- Hard Disk file type: Use the default, VDI (VirtualBox Disk Image)
 
-![](gitian-building/create_vm_storage_physical_hard_drive.png)
+![](gitian-building/create_vm_storage_physical_hard_disk.png)
 
-- Storage on Physical hard drive: Dynamically Allocated
+- Storage on physical hard disk: Dynamically Allocated
 
 ![](gitian-building/create_vm_file_location_size.png)
 
-- Disk size: at least 40GB; as low as 20GB *may* be possible, but better to err on the safe side
-- Push the `Create` button
-
-Get the [Debian 7.8 net installer](http://cdimage.debian.org/cdimage/archive/7.8.0/amd64/iso-cd/debian-7.8.0-amd64-netinst.iso) (a more recent minor version should also work, see also [Debian Network installation](https://www.debian.org/CD/netinst/)).
-This DVD image can be validated using a SHA256 hashing tool, for example on
-Unixy OSes by entering the following in a terminal:
-
-    echo "e39c36d6adc0fd86c6edb0e03e22919086c883b37ca194d063b8e3e8f6ff6a3a  debian-7.8.0-amd64-netinst.iso" | sha256sum -c
-    # (must return OK)
+- File location and size: at least 40GB; as low as 20GB *may* be possible, but better to err on the safe side
+- Click `Create`
 
 After creating the VM, we need to configure it.
 
@@ -101,7 +95,14 @@ After creating the VM, we need to configure it.
 
 - Click `Ok` twice to save.
 
-Then start the VM. On the first launch you will be asked for a CD or DVD image. Choose the downloaded iso.
+Get the [Debian 8.x net installer](http://cdimage.debian.org/mirror/cdimage/archive/8.5.0/amd64/iso-cd/debian-8.5.0-amd64-netinst.iso) (a more recent minor version should also work, see also [Debian Network installation](https://www.debian.org/CD/netinst/)).
+This DVD image can be [validated](https://www.debian.org/CD/verify) using a SHA256 hashing tool, for example on
+Unixy OSes by entering the following in a terminal:
+
+    echo "ad4e8c27c561ad8248d5ebc1d36eb172f884057bfeb2c22ead823f59fa8c3dff  debian-8.5.0-amd64-netinst.iso" | sha256sum -c
+    # (must return OK)
+
+Then start the VM. On the first launch you will be asked for a CD or DVD image. Choose the downloaded ISO.
 
 ![](gitian-building/select_startup_disk.png)
 
@@ -114,8 +115,9 @@ This section will explain how to install Debian on the newly created VM.
 
 ![](gitian-building/debian_install_1_boot_menu.png)
 
-**Note**: Navigation in the Debian installer: To keep a setting at the default
-and proceed, just press `Enter`. To select a different button, press `Tab`.
+**Note**: Navigating in the Debian installer:
+To keep a setting at the default and proceed, just press `Enter`.
+To select a different button, press `Tab`.
 
 - Choose locale and keyboard settings (doesn't matter, you can just go with the defaults or select your own information)
 
@@ -125,7 +127,7 @@ and proceed, just press `Enter`. To select a different button, press `Tab`.
 
 - The VM will detect network settings using DHCP, this should all proceed automatically
 - Configure the network:
-  - System name `debian`.
+  - Hostname `debian`.
   - Leave domain name empty.
 
 ![](gitian-building/debian_install_5_configure_the_network.png)
@@ -135,6 +137,7 @@ and proceed, just press `Enter`. To select a different button, press `Tab`.
 ![](gitian-building/debian_install_6a_set_up_root_password.png)
 
 - Name the new user `debian` (the full name doesn't matter, you can leave it empty)
+- Set the account username as `debian`
 
 ![](gitian-building/debian_install_7_set_up_user_fullname.png)
 ![](gitian-building/debian_install_8_set_up_username.png)
@@ -157,13 +160,13 @@ and proceed, just press `Enter`. To select a different button, press `Tab`.
 
 ![](gitian-building/debian_install_12_choose_disk.png)
 
-  - Partitioning scheme: All files in one partition 
-  
-![](gitian-building/debian_install_13_partition_scheme.png)
+  - Partition Disks -> *All files in one partition*
+
+![](gitian-building/all_files_in_one_partition.png)
 
   - Finish partitioning and write changes to disk -> *Yes* (`Tab`, `Enter` to select the `Yes` button)
 
-![](gitian-building/debian_install_14_finish.png) 
+![](gitian-building/debian_install_14_finish.png)
 ![](gitian-building/debian_install_15_write_changes.png)
 
 - The base system will be installed, this will take a minute or so
@@ -171,50 +174,78 @@ and proceed, just press `Enter`. To select a different button, press `Tab`.
 
 ![](gitian-building/debian_install_16_choose_a_mirror.png)
 
-- Enter proxy information (unless you are on an intranet, you can leave this empty)
+- Enter proxy information (unless you are on an intranet, leave this empty)
 
 ![](gitian-building/debian_install_18_proxy_settings.png)
 
 - Wait a bit while 'Select and install software' runs
 - Participate in popularity contest -> *No*
-- Choose software to install. We need just the base system. 
-
-![](gitian-building/debian_install_19_software_selection.png)
-
+- Choose software to install. We need just the base system.
 - Make sure only 'SSH server' and 'Standard System Utilities' are checked
 - Uncheck 'Debian Desktop Environment' and 'Print Server'
 
+![](gitian-building/debian_install_19_software_selection.png)
+
+- Install the GRUB boot loader to the master boot record? -> Yes
+
 ![](gitian-building/debian_install_20_install_grub.png)
 
-- Install the GRUB boot loader to the master boot record? -> Yes 
+- Device for boot loader installation -> ata-VBOX_HARDDISK
 
-![](gitian-building/debian_install_21_finish_installation.png)
+![](gitian-building/debian_install_21_install_grub_bootloader.png)
 
 - Installation Complete -> *Continue*
 - After installation, the VM will reboot and you will have a working Debian VM. Congratulations!
+
+![](gitian-building/debian_install_22_finish_installation.png)
+
+
+After Installation
+-------------------
+The next step in the guide involves logging in as root via SSH.
+SSH login for root users is disabled by default, so we'll enable that now.
+
+Login to the VM using username `root` and the root password you chose earlier.
+You'll be presented with a screen similar to this.
+
+![](gitian-building/debian_root_login.png)
+
+Type:
+
+```
+sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+```
+and press enter. Then,
+```
+/etc/init.d/ssh restart
+```
+and enter to restart SSH. Logout by typing 'logout' and pressing 'enter'.
 
 Connecting to the VM
 ----------------------
 
 After the VM has booted you can connect to it using SSH, and files can be copied from and to the VM using a SFTP utility.
 Connect to `localhost`, port `22222` (or the port configured when installing the VM).
-On Windows you can use putty[1] and WinSCP[2].
+On Windows you can use [putty](http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html) and [WinSCP](http://winscp.net/eng/index.php).
 
-For example to connect as `root` from a Linux command prompt use
+For example, to connect as `root` from a Linux command prompt use
 
     $ ssh root@localhost -p 22222
     The authenticity of host '[localhost]:22222 ([127.0.0.1]:22222)' can't be established.
-    ECDSA key fingerprint is 8e:71:f9:5b:62:46:de:44:01:da:fb:5f:34:b5:f2:18.
+    RSA key fingerprint is ae:f5:c8:9f:17:c6:c7:1b:c2:1b:12:31:1d:bb:d0:c7.
     Are you sure you want to continue connecting (yes/no)? yes
-    Warning: Permanently added '[localhost]:22222' (ECDSA) to the list of known hosts.
+    Warning: Permanently added '[localhost]:22222' (RSA) to the list of known hosts.
     root@localhost's password: (enter root password configured during install)
-    Linux debian 3.2.0-4-amd64 #1 SMP Debian 3.2.54-2 x86_64
+
+    The programs included with the Debian GNU/Linux system are free software;
+    the exact distribution terms for each program are described in the
+    individual files in /usr/share/doc/*/copyright.
+
+    Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+    permitted by applicable law.
     root@debian:~#
 
 Replace `root` with `debian` to log in as user.
-
-[1] http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html
-[2] http://winscp.net/eng/index.php
 
 Setting up Debian for Gitian building
 --------------------------------------
@@ -225,12 +256,9 @@ First we need to log in as `root` to set up dependencies and make sure that our
 user can use the sudo command. Type/paste the following in the terminal:
 
 ```bash
-apt-get install git ruby sudo apt-cacher-ng qemu-utils debootstrap lxc python-cheetah parted kpartx bridge-utils
+apt-get install git ruby sudo apt-cacher-ng qemu-utils debootstrap lxc python-cheetah parted kpartx bridge-utils make ubuntu-archive-keyring curl
 adduser debian sudo
 ```
-
-When you get a colorful screen with a question about the 'LXC directory', just
-go with the default (`/var/lib/lxc`).
 
 Then set up LXC and the rest with the following, which is a complex jumble of settings and workarounds:
 
@@ -255,7 +283,7 @@ reboot
 ```
 
 At the end the VM is rebooted to make sure that the changes take effect. The steps in this
-section need only to be performed once.
+section only need to be performed once.
 
 Installing Gitian
 ------------------
@@ -281,14 +309,15 @@ Clone the git repositories for argentum and Gitian.
 
 ```bash
 git clone https://github.com/devrandom/gitian-builder.git
-git clone https://github.com/argentum/argentum
+git clone https://github.com/argentumproject/argentum
+git clone https://github.com/argentumproject/gitian.sigs.git
 ```
 
 Setting up the Gitian image
 -------------------------
 
 Gitian needs a virtual image of the operating system to build in.
-Currently this is Ubuntu Precise x86_64.
+Currently this is Ubuntu Trusty x86_64.
 This image will be copied and used every time that a build is started to
 make sure that the build is deterministic.
 Creating the image will take a while, but only has to be done once.
@@ -300,26 +329,29 @@ cd gitian-builder
 bin/make-base-vm --lxc --arch amd64 --suite trusty
 ```
 
-There will be a lot of warnings printed during build of the image. These can be ignored.
+There will be a lot of warnings printed during the build of the image. These can be ignored.
 
 **Note**: When sudo asks for a password, enter the password for the user *debian* not for *root*.
 
 Getting and building the inputs
 --------------------------------
 
-Follow the instructions in [doc/release-process.md](release-process.md) in the argentum repository
-under 'Fetch and build inputs' to install sources which require manual intervention. Also follow
-the next step: 'Seed the Gitian sources cache', which will fetch all necessary source files allowing
-for Gitian to work offline.
+At this point you have two options, you can either use the automated script (found in [contrib/gitian-build.sh](/contrib/gitian-build.sh)) or you could manually do everything by following this guide. If you're using the automated script, then run it with the "--setup" command. Afterwards, run it with the "--build" command (example: "contrib/gitian-build.sh -b signer 0.13.0"). Otherwise ignore this.
 
-Building Bitcoin
+Follow the instructions in [doc/release-process.md](release-process.md#fetch-and-create-inputs-first-time-or-when-dependency-versions-change)
+in the bitcoin repository under 'Fetch and create inputs' to install sources which require
+manual intervention. Also optionally follow the next step: 'Seed the Gitian sources cache
+and offline git repositories' which will fetch the remaining files required for building
+offline.
+
+Building Argentum Core
 ----------------
 
-To build Bitcoin (for Linux, OS X and Windows) just follow the steps under 'perform
-Gitian builds' in [doc/release-process.md](release-process.md) in the argentum repository.
+To build Argentum Core (for Linux, OS X and Windows) just follow the steps under 'perform
+Gitian builds' in [doc/release-process.md](release-process.md#perform-gitian-builds) in the bitcoin repository.
 
-This may take a long time as it also builds the dependencies needed for each descriptor.
-These dependencies will be cached after a successful build to avoid rebuilding them where possible.
+This may take some time as it will build all the dependencies needed for each descriptor.
+These dependencies will be cached after a successful build to avoid rebuilding them when possible.
 
 At any time you can check the package installation and build progress with
 
@@ -330,14 +362,14 @@ tail -f var/build.log
 
 Output from `gbuild` will look something like
 
-    Initialized empty Git repository in /home/debian/gitian-builder/inputs/argentum/.git/
-    remote: Reusing existing pack: 35606, done.
-    remote: Total 35606 (delta 0), reused 0 (delta 0)
-    Receiving objects: 100% (35606/35606), 26.52 MiB | 4.28 MiB/s, done.
-    Resolving deltas: 100% (25724/25724), done.
-    From https://github.com/argentum/argentum
+    Initialized empty Git repository in /home/debian/gitian-builder/inputs/bitcoin/.git/
+    remote: Counting objects: 57959, done.
+    remote: Total 57959 (delta 0), reused 0 (delta 0), pack-reused 57958
+    Receiving objects: 100% (57959/57959), 53.76 MiB | 484.00 KiB/s, done.
+    Resolving deltas: 100% (41590/41590), done.
+    From https://github.com/bitcoin/bitcoin
     ... (new tags, new branch etc)
-    --- Building for trusty x86_64 ---
+    --- Building for trusty amd64 ---
     Stopping target if it is up
     Making a new image copy
     stdin: is not a tty
@@ -361,8 +393,8 @@ and inputs.
 
 For example:
 ```bash
-URL=https://github.com/protonn/argentum.git
-COMMIT=master
+URL=https://github.com/laanwj/bitcoin.git
+COMMIT=2014_03_windows_unicode_path
 ./bin/gbuild --commit argentum=${COMMIT} --url argentum=${URL} ../argentum/contrib/gitian-descriptors/gitian-linux.yml
 ./bin/gbuild --commit argentum=${COMMIT} --url argentum=${URL} ../argentum/contrib/gitian-descriptors/gitian-win.yml
 ./bin/gbuild --commit argentum=${COMMIT} --url argentum=${URL} ../argentum/contrib/gitian-descriptors/gitian-osx.yml
@@ -413,8 +445,8 @@ Then when building, override the remote URLs that gbuild would otherwise pull fr
 cd /some/root/path/
 git clone https://github.com/bitcoin-core/bitcoin-detached-sigs.git
 
-BTCPATH=/some/root/path/argentum
-SIGPATH=/some/root/path/argentum-detached-sigs
+BTCPATH=/some/root/path/bitcoin
+SIGPATH=/some/root/path/bitcoin-detached-sigs
 
 ./bin/gbuild --url argentum=${BTCPATH},signature=${SIGPATH} ../argentum/contrib/gitian-descriptors/gitian-win-signer.yml
 ```
@@ -431,9 +463,9 @@ When you execute `gsign` you will get an error from GPG, which can be ignored. C
 in `gitian.sigs` to your signing machine and do
 
 ```bash
-    gpg --detach-sign ${VERSION}-linux/${SIGNER}/argentum-linux-build.assert
-    gpg --detach-sign ${VERSION}-win/${SIGNER}/argentum-win-build.assert
-    gpg --detach-sign ${VERSION}-osx-unsigned/${SIGNER}/argentum-osx-build.assert
+    gpg --detach-sign ${VERSION}-linux/${SIGNER}/bitcoin-linux-build.assert
+    gpg --detach-sign ${VERSION}-win/${SIGNER}/bitcoin-win-build.assert
+    gpg --detach-sign ${VERSION}-osx-unsigned/${SIGNER}/bitcoin-osx-build.assert
 ```
 
 This will create the `.sig` files that can be committed together with the `.assert` files to assert your
@@ -443,5 +475,5 @@ Uploading signatures
 ---------------------
 
 After building and signing you can push your signatures (both the `.assert` and `.assert.sig` files) to the
-[argentum/gitian.sigs](https://github.com/argentumproject/gitian.sigs/) repository, or if that's not possible create a pull
+[argentum-core/gitian.sigs](https://github.com/argentumproject/gitian.sigs/) repository, or if that's not possible create a pull
 request. You can also mail the files to Wladimir (laanwj@gmail.com) and he will commit them.
