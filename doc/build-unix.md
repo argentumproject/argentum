@@ -57,7 +57,7 @@ Dependency Build Instructions: Ubuntu & Debian
 ----------------------------------------------
 Build requirements:
 
-	sudo apt-get install build-essential libtool autotools-dev autoconf pkg-config libssl-dev
+	sudo apt-get install build-essential libtool autotools-dev autoconf pkg-config libssl-dev libevent-dev bsdmainutils
 	
 For Ubuntu 12.04 and later or Debian 7 and later libboost-all-dev has to be installed:
 
@@ -148,7 +148,7 @@ tar -xzvf db-5.1.29.NC.tar.gz
 # Build the library and install to our prefix
 cd db-5.1.29.NC/build_unix/
 #  Note: Do a static build so that it can be embedded into the executable, instead of having to find a .so at runtime
-../dist/configure --enable-cxx --disable-shared --with-pic --prefix=$BDB_PREFIX
+../dist/configure --enable-cxx --disable-shared --with-pic --disable-replication --prefix=$BDB_PREFIX
 make install
 
 # Configure Argentum Core to use our own-built instance of BDB
