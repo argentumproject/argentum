@@ -54,7 +54,7 @@ A common question is how to build from Ubuntu, instructions follow:
 5. sudo apt-get install libtool automake autoconf make pkg-config -y
 6. sudo apt-get install libpng-dev -y
 7. sudo apt-get install libqrencode-dev -y
-8. sudo apt-get install libqt4-dev -y
+8. sudo apt-get install libqt5-dev -y
 9. sudo apt-get install libboost-all-dev -y
 10. sudo apt-get install libcurl4-openssl-dev -y
 11. git clone git://github.com/argentumproject/argentum.git
@@ -122,7 +122,7 @@ are held, and adds warning to the debug.log file if inconsistencies are detected
 - 3 Argentums per block
 
 ## Currency Creation
-- 64 million total ARG
+- 64 million Argentums will be created
 
 ## Security
 - Mined blocks mature after 100 confirms (Hard Fork, Block #2,420,000)
