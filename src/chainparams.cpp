@@ -64,8 +64,6 @@ public:
         consensus.nDGW3StartBlock = 1635000; 
         consensus.nMultiAlgoFork = 1930000; // Block where multi-algo difficulty adjustment and 45 second blocktime starts
         consensus.nCoinbaseMaturityV2Start = 2420000;
-        consensus.nCheckProof = 0;
-        consensus.nCheckProof1 = 1796710;
 
         /** 
          * The message start string is designed to be unlikely to occur in normal data.
@@ -201,7 +199,6 @@ public:
         consensus.nDGW3StartBlock = 50; 
         consensus.nMultiAlgoFork = 150; // Block where multi-algo difficulty adjustment and 45 second blocktime starts
         consensus.nCoinbaseMaturityV2Start = 200;
-        consensus.nCheckProof = 200;
 
         pchMessageStart[0] = 0xfc;
         pchMessageStart[1] = 0xc1;

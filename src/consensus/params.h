@@ -42,8 +42,6 @@ struct Params {
     int64_t nMultiAlgoFork;
     int64_t nDGW3StartBlock;
     int64_t nCoinbaseMaturityV2Start;
-    int64_t nCheckProof;
-    int64_t nCheckProof1;
 
     int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacingV2; }
     
