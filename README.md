@@ -1,11 +1,11 @@
 Argentum Core integration/staging tree
 ========================================
 
-http://www.argentum.io
+[Website](http://www.argentum.io)
 
 Copyright (c) 2009-2015 Bitcoin Core Developers
 
-Copyright (c) 2014-2016 Argentum Core Developers
+Copyright (c) 2013-2017 Argentum Developers
 
 
 What is Argentum?
@@ -50,20 +50,20 @@ A common question is how to build from Ubuntu, instructions follow:
 1. sudo add-apt-repository ppa:bitcoin/bitcoin -y
 2. sudo apt-get update
 3. sudo apt-get install build-essential curl git libminiupnpc-dev libssl-dev m4 -y
-4. sudo apt-get install libdb5.1-dev libdb5.1++-dev -y
-5. sudo apt-get install libprotoc-dev libprotobuf-dev -y
-6. sudo apt-get install libtool automake autoconf make pkg-config -y
-7. sudo apt-get install libpng-dev -y
-8. sudo apt-get install libqrencode-dev -y
-9. sudo apt-get install libqt4-dev -y
-10. sudo apt-get install libboost-all-dev -y
-11. sudo apt-get install libcurl4-openssl-dev -y
-12. git clone git://github.com/argentumproject/argentum.git
-13. cd argentum
+4. sudo apt-get install libprotoc-dev libprotobuf-dev -y
+5. sudo apt-get install libtool automake autoconf make pkg-config -y
+6. sudo apt-get install libpng-dev -y
+7. sudo apt-get install libqrencode-dev -y
+8. sudo apt-get install libqt4-dev -y
+9. sudo apt-get install libboost-all-dev -y
+10. sudo apt-get install libcurl4-openssl-dev -y
+11. git clone git://github.com/argentumproject/argentum.git
+12. cd argentum
+13. See /doc/build_unix.md to build Berkeley DB 5.1.29
 14. ./autogen.sh
 15. ./configure --enable-hardening --disable-tests --disable-upnp-default
 16. make
-
+See /doc/build_unix.md to build Berkeley DB 5.1.29
 Other Build Notes:
 
 If you are compiling yourself, please configure with something like this:
@@ -111,3 +111,26 @@ Argentum Core is a multithreaded application, and deadlocks or other multithread
 can be very difficult to track down. Compiling with -DDEBUG_LOCKORDER (configure
 CXXFLAGS="-DDEBUG_LOCKORDER -g") inserts run-time checks to keep track of what locks
 are held, and adds warning to the debug.log file if inconsistencies are detected.
+
+## General
+- Scrypt & SHA256D
+- AUXPoW (Merged Mining)
+
+## Blocks
+- Max Block size 10mb
+- 45 Second block time
+- 3 Argentums per block
+
+## Currency Creation
+- 64 million total ARG
+
+## Security
+- Mined blocks mature after 100 confirms (Hard Fork, Block #2,420,000)
+- Argentum is a fast currency, but it does not compromise the safety of the blockchain in the process
+
+## Mining Settings
+Use this to set the algorithm to SHA256D for mining (add to argentum.conf)  
+
+algo=sha256d
+
+## Argentum 3.11.2 adds BIP65 (OP_CHECKLOCKTIMEVERIFY)
