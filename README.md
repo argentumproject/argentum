@@ -134,3 +134,26 @@ Use this to set the algorithm to SHA256D for mining (add to argentum.conf)
 algo=sha256d
 
 ## Argentum 3.11.2 adds BIP65 (OP_CHECKLOCKTIMEVERIFY)
+
+## Add nodes to argentum.conf
+addnode=144.76.71.141
+addnode=149.210.234.234
+addnode=157.161.128.63
+addnode=167.160.36.126
+addnode=184.164.129.202
+addnode=217.175.119.125
+addnode=23.152.0.149
+addnode=24.247.103.100
+addnode=34.208.13.90
+addnode=66.56.61.161
+addnode=72.13.188.130
+addnode=74.66.86.127
+addnode=82.155.132.130
+addnode=85.236.188.28
+addnode=92.3.32.28
+addnode=92.3.34.76
+addnode=92.3.40.194
+addnode=92.3.45.249
+addnode=92.3.46.51
+addnode=95.218.175.59
+addnode=95.218.215.95
