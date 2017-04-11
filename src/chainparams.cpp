@@ -63,7 +63,7 @@ public:
         //consensus.nGeoAvgWork_Start = 4000000; // TODO
         consensus.nDGW3StartBlock = 1635000; 
         consensus.nMultiAlgoFork = 1930000; // Block where multi-algo difficulty adjustment and 45 second blocktime starts
-        consensus.nCoinbaseMaturityV2Start = 2420000;
+        consensus.nCoinbaseMaturityV2Start = 2422000;
 
         /** 
          * The message start string is designed to be unlikely to occur in normal data.
