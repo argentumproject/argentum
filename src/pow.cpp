@@ -20,7 +20,10 @@ static const int64_t nInterval = nTargetTimespan / nTargetSpacing;
 
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, int algo, const Consensus::Params& params)
 {
-        if (pindexLast->nHeight >= params.nMultiAlgoFork)
+        if (pindexLast->nHeight >= params.nBIP146Height){
+            return DigiSpeed(pindexLast, pblock, params, algo);
+        }
+        else if (pindexLast->nHeight >= params.nMultiAlgoFork)
         {
             return StabilX(pindexLast, pblock, params, algo);
         } 
@@ -281,104 +284,82 @@ unsigned int StabilX(const CBlockIndex* pindexLast, const CBlockHeader *pblock, 
     return bnNew.GetCompact();
 }
 
-// unsigned int CalculateNextWorkRequiredV1(const CBlockIndex* pindexPrev, const CBlockIndex* pindexFirst, const Consensus::Params& params, int algo, int64_t nActualTimespan, int nHeight)
-// {
-//     if (params.fPowNoRetargeting)
-//         return pindexPrev->nBits;
+unsigned int DigiSpeed(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params, int algo)
+{
+    unsigned int npowWorkLimit = UintToArith256(params.powLimit).GetCompact();
 
-//     const arith_uint256 nProofOfWorkLimit = UintToArith256(params.powLimit);    
-    
-//     int64_t nTargetSpacingPerAlgo = params.nPowTargetSpacingV1 * NUM_ALGOS; // 30 * 5 = 150s per algo
-//     int64_t nAveragingTargetTimespan = params.nAveragingInterval * nTargetSpacingPerAlgo; // 10 * 150 = 1500s, 25 minutes
-//     int64_t nMinActualTimespanV1 = nAveragingTargetTimespan * (100 - params.nMaxAdjustUpV1) / 100;
-//     int64_t nMinActualTimespanV2 = nAveragingTargetTimespan * (100 - params.nMaxAdjustUpV2) / 100;
-//     int64_t nMaxActualTimespan = nAveragingTargetTimespan * (100 + params.nMaxAdjustDown) / 100;
-    
-//     int64_t nMinActualTimespan;
-//     if (nHeight >= params.nBlockDiffAdjustV2)
-//     {
-//         nMinActualTimespan = nMinActualTimespanV2;
-//     }
-//     else
-//     {
-//         nMinActualTimespan = nMinActualTimespanV1;
-//     }
-    
-//     if (nActualTimespan < nMinActualTimespan)
-//         nActualTimespan = nMinActualTimespan;
-//     if (nActualTimespan > nMaxActualTimespan)
-//         nActualTimespan = nMaxActualTimespan;
-    
-//     if(fDebug)
-//     {
-//         LogPrintf("  nActualTimespan = %d after bounds   %d   %d\n", nActualTimespan, nMinActualTimespan, nMaxActualTimespan);
-//     }
-    
-//     // Retarget
-//     arith_uint256 bnNew;
-//     arith_uint256 bnOld;
-//     bnNew.SetCompact(pindexPrev->nBits);
-//     bnOld = bnNew;
-//     bnNew *= nActualTimespan;
-//     bnNew /= nAveragingTargetTimespan;
-//     if (bnNew > nProofOfWorkLimit)
-//         bnNew = nProofOfWorkLimit;
-    
-//     /// debug print
-//     if(fDebug)
-//     {
-//         LogPrintf("CalculateNextWorkRequiredV1(Algo=%d): RETARGET\n", algo);
-//         LogPrintf("CalculateNextWorkRequiredV1(Algo=%d): nTargetTimespan = %d    nActualTimespan = %d\n", algo, nAveragingTargetTimespan, nActualTimespan);
-//         LogPrintf("CalculateNextWorkRequiredV1(Algo=%d): Before: %08x  %s\n", algo, pindexPrev->nBits, bnOld.ToString());
-//         LogPrintf("CalculateNextWorkRequiredV1(Algo=%d): After:  %08x  %s\n", algo, bnNew.GetCompact(), bnNew.ToString());
-//     }
+    int64_t nTargetSpacingPerAlgo = params.nPowTargetSpacingV2 * NUM_ALGOS2; // 270 Seconds (NUM_ALGOS2 * 45 seconds)
+    int64_t nAveragingTargetTimespan = params.nAveragingInterval * nTargetSpacingPerAlgo; // 10 * 270 = 2700s, 45 minutes
+    int64_t nMinActualTimespan = nAveragingTargetTimespan * (100 - params.nMaxAdjustUpV2) / 100;
+    int64_t nMaxActualTimespan = nAveragingTargetTimespan * (100 + params.nMaxAdjustDown) / 100;
 
-//     return bnNew.GetCompact();
-// }
+    // Genesis block
+    if (pindexLast == NULL)
+        return npowWorkLimit;
 
+    // find first block in averaging interval
+    // Go back by what we want to be nAveragingInterval blocks per algo
+    const CBlockIndex* pindexFirst = pindexLast;
+    for (int i = 0; pindexFirst && i < NUM_ALGOS2*params.nAveragingInterval; i++)
+    {
+        pindexFirst = pindexFirst->pprev;
+    }
 
-// unsigned int CalculateNextWorkRequiredV2(const CBlockIndex* pindexPrev, const CBlockIndex* pindexFirst, const Consensus::Params& params, int algo, int64_t nActualTimespan)
-// {
-//     if (params.fPowNoRetargeting)
-//         return pindexPrev->nBits;
+    const CBlockIndex* pindexPrevAlgo = GetLastBlockIndexForAlgo(pindexLast, algo);
+    if (pindexPrevAlgo == NULL || pindexFirst == NULL)
+    {
+        return npowWorkLimit;
+    }
 
-//     const arith_uint256 nProofOfWorkLimit = UintToArith256(params.powLimit);    
-    
-//     int64_t nTargetSpacingPerAlgo = params.nPowTargetSpacingV2 * NUM_ALGOS; // 60 * 5 = 300s per algo
-//     int64_t nAveragingTargetTimespan = params.nAveragingInterval * nTargetSpacingPerAlgo; // 10 * 300 = 3000s, 50 minutes
-//     int64_t nMinActualTimespan = nAveragingTargetTimespan * (100 - params.nMaxAdjustUpV2) / 100;
-//     int64_t nMaxActualTimespan = nAveragingTargetTimespan * (100 + params.nMaxAdjustDown) / 100;
-    
-//     if (nActualTimespan < nMinActualTimespan)
-//         nActualTimespan = nMinActualTimespan;
-//     if (nActualTimespan > nMaxActualTimespan)
-//         nActualTimespan = nMaxActualTimespan;
-    
-//     if(fDebug)
-//     {
-//         LogPrintf("  nActualTimespan = %d after bounds   %d   %d\n", nActualTimespan, nMinActualTimespan, nMaxActualTimespan);
-//     }
-    
-//     arith_uint256 bnNew;
-//     arith_uint256 bnOld;
-//     bnNew.SetCompact(pindexPrev->nBits);
-//     bnOld = bnNew;
-//     bnNew *= nActualTimespan;
-//     bnNew /= nAveragingTargetTimespan;
-//     if (bnNew > nProofOfWorkLimit)
-//         bnNew = nProofOfWorkLimit;
-    
-//     /// debug print
-//     if(fDebug)
-//     {
-//         LogPrintf("CalculateNextWorkRequiredV2(Algo=%d): RETARGET\n", algo);
-//         LogPrintf("CalculateNextWorkRequiredV2(Algo=%d): nTargetTimespan = %d    nActualTimespan = %d\n", algo, nAveragingTargetTimespan, nActualTimespan);
-//         LogPrintf("CalculateNextWorkRequiredV2(Algo=%d): Before: %08x  %s\n", algo, pindexPrev->nBits, bnOld.ToString());
-//         LogPrintf("CalculateNextWorkRequiredV2(Algo=%d): After:  %08x  %s\n", algo, bnNew.GetCompact(), bnNew.ToString());
-//     }
+    // Limit adjustment step
+    // Use medians to prevent time-warp attacks
+    int64_t nActualTimespan = pindexLast-> GetMedianTimePast() - pindexFirst->GetMedianTimePast();
+    nActualTimespan = nAveragingTargetTimespan + (nActualTimespan - nAveragingTargetTimespan)/4;
+    if (fDebug)
+    {
+        LogPrintf("DigiSpeed(Algo=%d): nActualTimespan = %d before bounds   %d   %d\n", algo, nActualTimespan, pindexLast->GetMedianTimePast(), pindexFirst->GetMedianTimePast());
+    }
+    if (nActualTimespan < nMinActualTimespan)
+        nActualTimespan = nMinActualTimespan;
+    if (nActualTimespan > nMaxActualTimespan)
+        nActualTimespan = nMaxActualTimespan;
+    if(fDebug)
+    {
+        LogPrintf("DigiSpeed(Algo=%d): nActualTimespan = %d after bounds (%d - %d)\n", algo, nActualTimespan, nMinActualTimespan, nMaxActualTimespan);
+    }
+    //Global retarget
+    arith_uint256 bnNew;
+    bnNew.SetCompact(pindexPrevAlgo->nBits);
 
-//     return bnNew.GetCompact();
-// }
+    bnNew *= nActualTimespan;
+    bnNew /= nAveragingTargetTimespan;
+
+    //Per-algo retarget
+    int nAdjustments = pindexPrevAlgo->nHeight + NUM_ALGOS2 - 1 - pindexLast->nHeight;
+    if (nAdjustments > 0)
+    {
+        for (int i = 0; i < nAdjustments; i++)
+        {
+            bnNew *= 100;
+            bnNew /= (100 + params.nLocalDifficultyAdjustment);
+        }
+    }
+    else if (nAdjustments < 0)//make it easier
+    {
+        for (int i = 0; i < -nAdjustments; i++)
+        {
+            bnNew *= (100 + params.nLocalDifficultyAdjustment);
+            bnNew /= 100;
+        }
+    }
+
+    if (bnNew > UintToArith256(params.powLimit))
+    {
+        bnNew = UintToArith256(params.powLimit);
+    }
+
+    return bnNew.GetCompact();
+}
 
 bool CheckProofOfWork(uint256 hash, int algo, unsigned int nBits, const Consensus::Params& params)
 {

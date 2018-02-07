@@ -273,7 +273,7 @@ crypto_libbitcoin_crypto_a_SOURCES = \
   crypto/simd.c \
   crypto/skein.c \
   crypto/hashgroestl.h \
-  crypto/hashqubit.h \
+  crypto/hashargon2d.h \
   crypto/hashskein.h \
   crypto/sph_blake.h \
   crypto/sph_bmw.h \
@@ -290,6 +290,24 @@ crypto_libbitcoin_crypto_a_SOURCES = \
   crypto/sha256_Y.c \
   crypto/sha256_Y.h \
   crypto/sysendian.h \
+  crypto/argon2/argon2.c \
+  crypto/argon2/argon2.h \
+  crypto/argon2/best.c \
+  crypto/argon2/blake2.h \
+  crypto/argon2/blake2b.c \
+  crypto/argon2/blake2-impl.h \
+  crypto/argon2/core.c \
+  crypto/argon2/core.h \
+  crypto/argon2/encoding.c \
+  crypto/argon2/encoding.h \
+  crypto/argon2/thread.c \
+  crypto/argon2/thread.h \
+  crypto/lyra2/lyra2.c \
+  crypto/lyra2/lyra2.h \
+  crypto/lyra2/lyra2RE.c \
+  crypto/lyra2/lyra2RE.h \
+  crypto/lyra2/sponge.c \
+  crypto/lyra2/sponge.h \
   crypto/yescrypt.h \
   crypto/yescrypt-best.c \
   crypto/yescryptcommon.c

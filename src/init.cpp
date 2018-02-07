@@ -481,7 +481,7 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-blockmaxsize=<n>", strprintf(_("Set maximum block size in bytes (default: %d)"), DEFAULT_BLOCK_MAX_SIZE));
     strUsage += HelpMessageOpt("-blockprioritysize=<n>", strprintf(_("Set maximum size of high-priority/low-fee transactions in bytes (default: %d)"), DEFAULT_BLOCK_PRIORITY_SIZE));
     strUsage += HelpMessageOpt("-blockmintxfee=<amt>", strprintf(_("Set lowest fee rate (in %s/kB) for transactions to be included in block creation. (default: %s)"), CURRENCY_UNIT, FormatMoney(DEFAULT_BLOCK_MIN_TX_FEE)));
-    strUsage += HelpMessageOpt("-algo=<algo>", _("Mining algorithm: sha256d, scrypt"));
+    strUsage += HelpMessageOpt("-algo=<algo>", _("Mining algorithm: sha256d, scrypt, lyra2re2, myr-groestl, argon2d, yescrypt"));
     if (showDebug)
         strUsage += HelpMessageOpt("-blockversion=<n>", "Override block version to test forking scenarios");
 
@@ -1099,14 +1099,14 @@ bool AppInitParameterInteraction()
         miningAlgo = ALGO_SHA256D;
     else if (strAlgo == "scrypt")
         miningAlgo = ALGO_SCRYPT;
-    // else if (strAlgo == "groestl" || strAlgo == "groestlsha2")
-    //     miningAlgo = ALGO_GROESTL;
-    // else if (strAlgo == "skein" || strAlgo == "skeinsha2")
-    //     miningAlgo = ALGO_SKEIN;
-    // else if (strAlgo == "q2c" || strAlgo == "qubit")
-    //     miningAlgo = ALGO_QUBIT;
-    // else if (strAlgo == "yescrypt")
-    //     miningAlgo = ALGO_YESCRYPT;
+    else if (strAlgo == "lyra2re2" || strAlgo == "lyra2")
+        miningAlgo = ALGO_LYRA2RE2;
+    else if (strAlgo == "groestl" || strAlgo == "groestlsha2")
+        miningAlgo = ALGO_GROESTL;
+    else if (strAlgo == "argon2d" || strAlgo == "argon")
+        miningAlgo = ALGO_ARGON2D;
+    else if (strAlgo == "yescrypt")
+        miningAlgo = ALGO_YESCRYPT;
     else
         miningAlgo = ALGO_SCRYPT;
 

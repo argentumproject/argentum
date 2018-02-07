@@ -89,8 +89,9 @@ public:
         //consensus.Phase2Timespan_Start = 1401000; // block where 60 second target time kicks in
         consensus.nBlockDiffAdjustV2 = 1635000; // block where difficulty adjust V2 starts (DGW)
 
-        consensus.nMaxAdjustDown = 22; // 4% adjustment down
-        consensus.nMaxAdjustUp = 14; // 2% adjustment up
+        consensus.nMaxAdjustDown = 22; // 22% adjustment down
+        consensus.nMaxAdjustUp = 14; // 14% adjustment up
+        consensus.nMaxAdjustUpV2 = 12; // 12% adjustment up
         //consensus.nMaxAdjustUpV2 = 4; // 4% adjustment up
         consensus.nLocalDifficultyAdjustment = 12; // 12%     
 
@@ -144,7 +145,7 @@ public:
         consensus.defaultAssumeValid = uint256S("0x43964064d8605d2bb89972f07919dc5b1a00457b3919eb6010003c8d0b242c93"); //2210002
 
         // BIP146 fork
-        consensus.BIP146Height = 2977000; // Around March 13th 2018
+        consensus.nBIP146Height = 2977000; // Around March 13th 2018
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -294,7 +295,7 @@ public:
         consensus.defaultAssumeValid = uint256S("0x00"); // 40
 
         // BIP146 fork
-        consensus.BIP146Height = 100; 
+        consensus.nBIP146Height = 100; 
 
         pchMessageStart[0] = 0xfc;
         pchMessageStart[1] = 0xc1;
@@ -417,7 +418,7 @@ public:
         consensus.defaultAssumeValid = uint256S("0x00");
 
         // BIP146 fork is always on on regtest.
-        consensus.BIP146Height = 0;
+        consensus.nBIP146Height = 0;
 
         pchMessageStart[0] = 0xfa;
         pchMessageStart[1] = 0xbf;

@@ -553,7 +553,7 @@ std::string FormatStateMessage(const CValidationState &state)
 
 static bool IsBIP146Enabled(const CChainParams &chainparams, int nHeight)
 {
-    return nHeight >= chainparams.GetConsensus().BIP146Height;
+    return nHeight >= chainparams.GetConsensus().nBIP146Height;
 }
 
 bool IsBIP146Enabled(const CChainParams &chainparams, const CBlockIndex *pindexPrev)
@@ -2918,19 +2918,10 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     if (block.GetBlockTime() > nAdjustedTime + 2 * 60 * 60)
         return state.Invalid(false, REJECT_INVALID, "time-too-new", "block timestamp too far in the future");
 
-    // Check for algo switch 1
-    // Active when fork block reached
-    // bool bAlgoSwitch1 = (nHeight >= consensusParams.nFork1MinBlock);
-    // if (bAlgoSwitch1)
-    // {
-    //     if (algo == ALGO_QUBIT)
-    //         return state.Invalid(false, REJECT_INVALID, "invalid-algo", "invalid QUBIT block");
-    // }
-    // else
-    // {
-    //     if (algo == ALGO_YESCRYPT)
-    //         return state.Invalid(false, REJECT_INVALID, "invalid-algo", "invalid YESCRYPT block");
-    // }
+    // Check for early algos
+    if (nHeight > consensusParams.nMultiAlgoFork && nHeight < consensusParams.nBIP146Height){
+    if (!(algo == ALGO_SHA256D || algo == ALGO_SCRYPT))
+        return state.Invalid(false, REJECT_INVALID, "early-algo", "additional algorithms are not allowed yet");}
 
     // Reject outdated version blocks when 95% (75% on testnet) of the network has upgraded:
     // check for version 2, 3 and 4 upgrades

@@ -161,26 +161,6 @@ arith_uint256 GetBlockProofBase(const CBlockIndex& block)
     return (~bnTarget / (bnTarget + 1)) + 1;
 }
 
-// int GetAlgoWorkFactor(int algo)
-// {
-//     switch (algo)
-//     {
-//         case ALGO_SHA256D:
-//             return 1; 
-//         // work factor = absolute work ratio * optimisation factor
-//         case ALGO_SCRYPT:
-//             return 1024 * 4;
-//         // case ALGO_GROESTL:
-//         //     return 64 * 8;
-//         // case ALGO_SKEIN:
-//         //     return 4 * 6;
-//         // case ALGO_QUBIT:
-//         //     return 128 * 8;
-//         default:
-//             return 1;
-//     }
-// }
-
 arith_uint256 GetPrevWorkForAlgo(const CBlockIndex& block, int algo)
 {
     const CBlockIndex* pindex = &block;
@@ -194,56 +174,6 @@ arith_uint256 GetPrevWorkForAlgo(const CBlockIndex& block, int algo)
     }
     return UintToArith256(Params().GetConsensus().powLimit);
 }
-
-// arith_uint256 GetPrevWorkForAlgoWithDecay(const CBlockIndex& block, int algo)
-// {
-//     int nDistance = 0;
-//     arith_uint256 nWork;
-//     const CBlockIndex* pindex = &block;
-//     while (pindex != NULL)
-//     {
-//         if (nDistance > 32)
-//         {
-//             return UintToArith256(Params().GetConsensus().powLimit);
-//         }
-//         if (pindex->GetAlgo() == algo)
-//         {
-//             arith_uint256 nWork = GetBlockProofBase(*pindex);
-//             nWork *= (32 - nDistance);
-//             nWork /= 32;
-//             if (nWork < UintToArith256(Params().GetConsensus().powLimit))
-//                 nWork = UintToArith256(Params().GetConsensus().powLimit);
-//             return nWork;
-//         }
-//         pindex = pindex->pprev;
-//         nDistance++;
-//     }
-//     return UintToArith256(Params().GetConsensus().powLimit);
-// }
-
-// arith_uint256 GetPrevWorkForAlgoWithDecay2(const CBlockIndex& block, int algo)
-// {
-//     int nDistance = 0;
-//     arith_uint256 nWork;
-//     const CBlockIndex* pindex = &block;
-//     while (pindex != NULL)
-//     {
-//         if (nDistance > 32)
-//         {
-//             return arith_uint256(0);
-//         }
-//         if (pindex->GetAlgo() == algo)
-//         {
-//             arith_uint256 nWork = GetBlockProofBase(*pindex);
-//             nWork *= (32 - nDistance);
-//             nWork /= 32;
-//             return nWork;
-//         }
-//         pindex = pindex->pprev;
-//         nDistance++;
-//     }
-//     return arith_uint256(0);
-// }
     
 arith_uint256 GetPrevWorkForAlgoWithDecay3(const CBlockIndex& block, int algo)
 {
@@ -293,6 +223,34 @@ arith_uint256 GetGeometricMeanPrevWork(const CBlockIndex& block)
     return UintToArith256(bnRes.getuint256());
 }
 
+arith_uint256 GetGeometricMeanPrevWork2(const CBlockIndex& block)
+{
+    //arith_uint256 bnRes;
+    arith_uint256 nBlockWork = GetBlockProofBase(block);
+    CBigNum bnBlockWork = CBigNum(ArithToUint256(nBlockWork));
+    int nAlgo = block.GetAlgo();
+    
+    for (int algo = 0; algo < NUM_ALGOS_IMPL; algo++)
+    {
+        if (algo != nAlgo)
+        {
+            arith_uint256 nBlockWorkAlt = GetPrevWorkForAlgoWithDecay3(block, algo);
+            CBigNum bnBlockWorkAlt = CBigNum(ArithToUint256(nBlockWorkAlt));
+            if (bnBlockWorkAlt != 0)
+                bnBlockWork *= bnBlockWorkAlt;
+        }
+    }
+    // Compute the geometric mean
+    CBigNum bnRes = bnBlockWork.nthRoot(NUM_ALGOS2);
+
+    // Scale to roughly match the old work calculation
+    bnRes <<= 8;
+
+
+    //return bnRes;
+    return UintToArith256(bnRes.getuint256());
+}
+
 arith_uint256 GetBlockProof(const CBlockIndex& block)
 {
     const CChainParams& chainparams = Params();
@@ -301,7 +259,11 @@ arith_uint256 GetBlockProof(const CBlockIndex& block)
     int nHeight = block.nHeight;
     int nAlgo = block.GetAlgo();
     
-    if (nHeight >= chainparams.GetConsensus().nGeoAvgWork_Start)
+    if (nHeight >= chainparams.GetConsensus().nBIP146Height)
+    {
+        bnTarget = GetGeometricMeanPrevWork2(block);
+    }
+    else if (nHeight >= chainparams.GetConsensus().nGeoAvgWork_Start)
     {
         bnTarget = GetGeometricMeanPrevWork(block);
     }
@@ -359,17 +321,17 @@ std::string GetAlgoName(int Algo, uint32_t time, const Consensus::Params& consen
     switch (Algo)
     {
         case ALGO_SHA256D:
-            return std::string("sha256d");
+            return std::string("Sha256d");
         case ALGO_SCRYPT:
-            return std::string("scrypt");
-        // case ALGO_GROESTL:
-        //     return std::string("groestl");
-        // case ALGO_SKEIN:
-        //     return std::string("skein");
-        // case ALGO_QUBIT:
-        //     return std::string("qubit");
-        // case ALGO_YESCRYPT:
-        //     return std::string("yescrypt");
+            return std::string("Scrypt");
+        case ALGO_LYRA2RE2:
+            return std::string("Lyra2RE2");
+        case ALGO_GROESTL:
+            return std::string("Groestl");
+        case ALGO_ARGON2D:
+            return std::string("Argon2d");
+        case ALGO_YESCRYPT:
+            return std::string("Yescrypt");
     }
     return std::string("unknown");
 }

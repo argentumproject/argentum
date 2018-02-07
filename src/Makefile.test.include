@@ -158,7 +158,7 @@ BITCOIN_TESTS =\
   crypto/simd.c \
   crypto/skein.c \
   crypto/hashgroestl.h \
-  crypto/hashqubit.h \
+  crypto/hashx11.h \
   crypto/hashskein.h \
   crypto/sph_bmw.h \
   crypto/sph_cubehash.h \

@@ -89,8 +89,8 @@ BOOST_AUTO_TEST_CASE(SimpleCheckAlgo)
     BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_SHA256D,Params().GetConsensus()).ToString() , "98f6452950f1b08201b5f2ba9ff7a5d7a7abb4534322a0eda9f4453290042bbd");
     BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_SCRYPT,Params().GetConsensus()).ToString() , "38f16e4c161e8f6e3985c3ae099b9341362e271cdc6a575aa260afa3b365b88e");
     // BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_GROESTL,Params().GetConsensus()).ToString() , "cb9889a9bc2dbef41487987ec930b9655ca43fc91fc450837c03ea2fd4e9afd3");
-    // BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_SKEIN,Params().GetConsensus()).ToString() , "8d105c1d8f2dca9317421574d49b3995f9e6770574766ed335a98fa8921e6233");
-    // BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_QUBIT,Params().GetConsensus()).ToString() , "545e0014587886f42a6e0963c01fff3b0e419e5cb7aad2d7823ea56bdebaa633");
+    // BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_ARGON2D,Params().GetConsensus()).ToString() , "8d105c1d8f2dca9317421574d49b3995f9e6770574766ed335a98fa8921e6233");
+    // BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_LYRA2RE2,Params().GetConsensus()).ToString() , "545e0014587886f42a6e0963c01fff3b0e419e5cb7aad2d7823ea56bdebaa633");
     // BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_YESCRYPT,Params().GetConsensus()).ToString() , "1895648554eaae0206e9ec67f5632cfb22e37963f4e0914da031d62858d8fa9a");
 }
 

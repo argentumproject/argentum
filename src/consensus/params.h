@@ -73,6 +73,7 @@ struct Params {
     int64_t nLocalDifficultyAdjustment;
     int64_t nMaxAdjustDown;
     int64_t nMaxAdjustUp;
+    int64_t nMaxAdjustUpV2;
     int64_t nBlockSequentialAlgoRuleStart1;
     int64_t nBlockSequentialAlgoRuleStart2;
     int64_t nBlockDiffAdjustV2;
@@ -89,7 +90,7 @@ struct Params {
     int nStartAuxPow;
 
     // ** BIP146 fork activation time
-    int64_t BIP146Height;
+    int64_t nBIP146Height;
 };
 } // namespace Consensus
 

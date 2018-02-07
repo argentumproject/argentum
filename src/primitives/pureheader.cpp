@@ -7,10 +7,11 @@
 
 #include "hash.h"
 #include "crypto/hashgroestl.h"
-#include "crypto/hashqubit.h"
-#include "crypto/hashskein.h"
+#include "crypto/lyra2/lyra2RE.h"
+#include "crypto/hashargon2d.h"
 #include "crypto/scrypt.h"
 #include "crypto/yescrypt.h"
+#include "crypto/lyra2/lyra2RE.h"
 #include "utilstrencodings.h"
 
 uint256 CPureBlockHeader::GetHash() const
@@ -30,18 +31,22 @@ uint256 CPureBlockHeader::GetPoWHash(int algo, const Consensus::Params& consensu
             scrypt_1024_1_1_256(BEGIN(nVersion), BEGIN(thash));
             return thash;
         }
-        // case ALGO_GROESTL:
-        //     return HashGroestl(BEGIN(nVersion), END(nNonce));
-        // case ALGO_SKEIN:
-        //     return HashSkein(BEGIN(nVersion), END(nNonce));
-        // case ALGO_QUBIT:
-        //     return HashQubit(BEGIN(nVersion), END(nNonce));
-        // case ALGO_YESCRYPT:
-        // {
-        //     uint256 thash;
-        //     yescrypt_hash(BEGIN(nVersion), BEGIN(thash));
-        //     return thash;
-        // }
+        case ALGO_LYRA2RE2:
+            {
+            uint256 thash;
+            lyra2re2_hash(BEGIN(nVersion), BEGIN(thash));
+            return thash;
+            }
+        case ALGO_GROESTL:
+            return HashGroestl(BEGIN(nVersion), END(nNonce));
+        case ALGO_ARGON2D:
+            return HashArgon2d(BEGIN(nVersion), END(nNonce));
+        case ALGO_YESCRYPT:
+        {
+            uint256 thash;
+            yescrypt_hash(BEGIN(nVersion), BEGIN(thash));
+            return thash;
+        }
     }
     return GetHash();
 }
@@ -61,14 +66,14 @@ int GetAlgo(int nVersion)
             return ALGO_SCRYPT;
         case BLOCK_VERSION_SHA256D:
             return ALGO_SHA256D;
-        // case BLOCK_VERSION_GROESTL:
-        //     return ALGO_GROESTL;
-        // case BLOCK_VERSION_SKEIN:
-        //     return ALGO_SKEIN;
-        // case BLOCK_VERSION_QUBIT:
-        //     return ALGO_QUBIT;
-        // case BLOCK_VERSION_YESCRYPT:
-        //     return ALGO_YESCRYPT;
+        case BLOCK_VERSION_LYRA2RE2:
+            return ALGO_LYRA2RE2;
+        case BLOCK_VERSION_GROESTL:
+            return ALGO_GROESTL;
+        case BLOCK_VERSION_ARGON2D:
+            return ALGO_ARGON2D;
+        case BLOCK_VERSION_YESCRYPT:
+            return ALGO_YESCRYPT;
     }
     return ALGO_SCRYPT;
 }

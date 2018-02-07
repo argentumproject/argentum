@@ -32,12 +32,12 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
-#include "crypto/sha3/sph_blake.h"
-#include "crypto/sha3/sph_groestl.h"
-#include "crypto/sha3/sph_cubehash.h"
-#include "crypto/sha3/sph_bmw.h"
-#include "crypto/sha3/sph_keccak.h"
-#include "crypto/sha3/sph_skein.h"
+#include "crypto/sph_blake.h"
+#include "crypto/sph_groestl.h"
+#include "crypto/sph_cubehash.h"
+#include "crypto/sph_bmw.h"
+#include "crypto/sph_keccak.h"
+#include "crypto/sph_skein.h"
 #include "lyra2.h"
 
 void lyra2re_hash(const char* input, char* output)

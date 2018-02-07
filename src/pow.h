@@ -15,8 +15,7 @@ class CBlockIndex;
 class uint256;
 
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, int algo, const Consensus::Params&);
-// unsigned int CalculateNextWorkRequiredV1(const CBlockIndex* pindexPrev, const CBlockIndex* pindexFirst, const Consensus::Params& params, int algo, int64_t nActualTimespan, int nHeight);
-// unsigned int CalculateNextWorkRequiredV2(const CBlockIndex* pindexPrev, const CBlockIndex* pindexFirst, const Consensus::Params& params, int algo, int64_t nActualTimespan);
+unsigned int DigiSpeed(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params&, int algo);
 unsigned int StabilX(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params&, int algo);
 unsigned int DarkGravityWave3(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params, int algo);
 unsigned int GetNextWorkRequired_Legacy(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params, int algo);
