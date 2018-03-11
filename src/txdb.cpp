@@ -89,7 +89,7 @@ bool CCoinsViewDB::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) {
         batch.Write(DB_BEST_BLOCK, hashBlock);
 
     bool ret = db.WriteBatch(batch);
-    LogPrint(BCLog::COINDB, "Committed %u changed transaction outputs (out of %u) to coin database...\n", (unsigned int)changed, (unsigned int)count);
+    LogPrint("coindb", "Committed %u changed transaction outputs (out of %u) to coin database...\n", (unsigned int)changed, (unsigned int)count);
     return ret;
 }
 
@@ -319,15 +319,10 @@ bool CCoinsViewDB::Upgrade() {
     LogPrintf("Upgrading database...\n");
     size_t batch_size = 1 << 24;
     CDBBatch batch(db);
-    uiInterface.SetProgressBreakAction(StartShutdown);
-    int reportDone = 0;
     std::pair<unsigned char, uint256> key;
     std::pair<unsigned char, uint256> prev_key = {DB_COINS, uint256()};
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
-        if (ShutdownRequested()) {
-            break;
-        }
         if (pcursor->GetKey(key) && key.first == DB_COINS) {
             CCoins old_coins;
             if (!pcursor->GetValue(old_coins)) {
@@ -356,7 +351,6 @@ bool CCoinsViewDB::Upgrade() {
     }
     db.WriteBatch(batch);
     db.CompactRange({DB_COINS, uint256()}, key);
-    uiInterface.SetProgressBreakAction(std::function<void(void)>());
-    LogPrintf("[%s].\n", ShutdownRequested() ? "CANCELLED" : "DONE");
+
     return true;
 }

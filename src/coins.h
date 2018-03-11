@@ -18,6 +18,7 @@
 
 #include <boost/foreach.hpp>
 #include <boost/unordered_map.hpp>
+#include <unordered_map>
 
 /**
  * A UTXO entry.
