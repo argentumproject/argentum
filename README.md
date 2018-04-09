@@ -14,12 +14,6 @@ with no central authority: managing transactions and issuing money are carried
 out collectively by the network. Argentum is the name of open source
 software which enables the use of this currency.
 
-For more information, as well as an immediately usable, binary version of
-the Argentum software, see http://www.argentum.io, or read the
-[original Bitcoin whitepaper](https://bitcoincore.org/bitcoin.pdf).
-
-[Website](http://www.argentum.io)
-
 License
 -------
 
@@ -40,12 +34,15 @@ Building
 See files in the [doc](doc) directory for generic build instructions for Windows,
 OSX and Unix.
 
+## Argentum Version 4.14.4
+- Speed up Initial Blockchain Download
+
 ## Argentum Version 4.14.3
 - Adds 4 new mining algorithms (Activates at block 2,977,000)
-	-Lyra2re2 (GPU)
-	-Myr-Groestl (GPU/ASIC)
-	-Argon2d (CPU)
-	-Yescrypt (CPU/GPU)
+	-Lyra2re2 (GPU)  
+	-Myr-Groestl (GPU/ASIC)  
+	-Argon2d (CPU)  
+	-Yescrypt (CPU/GPU)  
 
 ## Argentum Version 4.14.2
 - These are just a few of the hundreds of enhancements with this new release
@@ -61,14 +58,6 @@ OSX and Unix.
 - Compact Block support (BIP 152)
 - Hierarchical Deterministic Key Generation (HD wallets)
 - Substantial improvments to the client load time. 
-
-
-## Argentum Version 3.11.2
-- Update the code base to Bitcoin version 11.2
-- Hard fork for coinbase maturity at Block 2,422,000. New coinbase maturity will be 100 confirmations
-- Up to date Gitian build scripts and setup guide
-- BIP65 Soft Fork when ~>78% of nodes have upgraded
-- Minimum protocol version is 1050000
 
 ## General
 ### Six different mining algorithms
@@ -116,11 +105,18 @@ algo=yescrypt
 ### P2Pool (All Algorithms)
 - https://github.com/argentumproject/p2pool-argentum/
 
+- Point your miner to:
+- Argon2d 144.202.80.45:9552
+- Myr-groestl 45.77.210.177:9553 
+- Yescrypt 45.76.112.155:9554
+- Lyra 45.76.240.8:9557
+
 ## Known pools (*with Argentum Payout*)
 - https://prohashing.com (Scrypt)
 - http://blockmunch.club/ (SHA256)
-- http://www.zpool.ca/
-- https://www.joinmycrypto.tk
+- http://www.zpool.ca/ (all but Argon2d)
+- https://www.joinmycrypto.tk (Yescrypt)
+- http://poolovich.pro/ (Myriad-Groestl)
 
 ## Pools without Argentum payout
 - https://litecoinpool.org

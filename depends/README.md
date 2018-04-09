@@ -13,7 +13,7 @@ For example:
     make HOST=x86_64-apple-darwin11 -j4
 
 A prefix will be generated that's suitable for plugging into Bitcoin's
-configure. In the above example, a dir named x86_64-w64-mingw32 will be
+configure. In the above example, a dir named x86_64-apple-darwin11 will be
 created. To use it for Bitcoin:
 
     CFLAGS="-O2 -fPIC -DUSE_SSE2" CPPFLAGS="-O2 -fPIC -DUSE_SSE2" ./configure --disable-tests --prefix=`pwd`/depends/x86_64-apple-darwin11
