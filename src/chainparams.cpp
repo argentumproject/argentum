@@ -165,7 +165,8 @@ public:
         assert(consensus.hashGenesisBlock == uint256S("0x88c667bc63167685e4e4da058fffdfe8e007e5abffd6855de52ad59df7bb0bb2"));
         assert(genesis.hashMerkleRoot == uint256S("0xc7e4af4190d3eb28d4e61261fb1b47e13d7efd6d7279c75ae6a91c2987d43d53"));
 
-        vSeeds.push_back(CDNSSeedData("", ""));
+	// Add DNS Node Tracker/Seeder 'dnsseed.argentumcoin.cc'  ( Jan 23, 2021 )
+        vSeeds.push_back(CDNSSeedData("argentumcoin.cc", "dnsseed.argentumcoin.cc"));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,23);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,5);
